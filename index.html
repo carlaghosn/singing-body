@@ -940,6 +940,7 @@ function songReady() {
   $('pReset').hidden = !(other && CUR.rec) && !(other && !CUR.gen);
   P.audioLen = other ? SONG_LEN : P.audioLen;
   if (CUR.gen && !other) fitStarts();
+  if (P.pendingSave) { const ps = P.pendingSave; P.pendingSave = null; if (!other && ps.id === CUR.id) saveRec(ps.id, ps.f).then(ok => { if (ok) $('songState').textContent += ' Saved on this device: next time it loads by itself.'; }); }
   $('pLoad').textContent = 'Load a different file';
   buildTimeline(); seek(P.t);
 }
@@ -953,14 +954,22 @@ $('pReset').onclick = () => {
   if (location.protocol === 'file:' && DEFAULT_SRC) { song.src = encodeURI(DEFAULT_SRC); song.load(); }
   else { $('songState').textContent = DEFAULT_SRC ? `Press "Load the song file" and pick ${CUR.recName}.` : `Press Play: the body follows the sheet music of ${CUR.title}.`; $('pReset').hidden = true; song.removeAttribute('src'); song.load(); P.audioLen = null; buildTimeline(); seek(0); }
 };
-$('pFile').onchange = e => { const f = e.target.files[0]; if (!f) return; P.audio = false; setPlaying(false); song.src = URL.createObjectURL(f); song.load(); };
+const audioDB = () => new Promise((ok, bad) => { const r = indexedDB.open('singing-body-audio', 1); r.onupgradeneeded = () => r.result.createObjectStore('rec'); r.onsuccess = () => ok(r.result); r.onerror = () => bad(r.error); });
+async function saveRec(id, blob) { try { const db = await audioDB(); await new Promise((ok, bad) => { const tx = db.transaction('rec', 'readwrite'); tx.objectStore('rec').put(blob, id); tx.oncomplete = ok; tx.onerror = () => bad(tx.error); }); return true; } catch (e) { return false; } }
+async function getRec(id) { try { const db = await audioDB(); return await new Promise(ok => { const q = db.transaction('rec').objectStore('rec').get(id); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch (e) { return null; } }
+$('pFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return; P.audio = false; setPlaying(false); song.src = URL.createObjectURL(f); song.load();
+  const id = CUR.id; P.pendingSave = {id, f};
+};
 function loadDefaultAudio() {
   P.audio = false; P.audioLen = null; setPlaying(false); $('pReset').hidden = true;
   if (location.protocol === 'file:' && DEFAULT_SRC) { song.src = encodeURI(DEFAULT_SRC); song.load(); }
   else {
     song.removeAttribute('src'); song.load();
+    const id = CUR.id; getRec(id).then(b => { if (b && CUR.id === id && !P.audio) { song.src = URL.createObjectURL(b); song.load(); } });
     $('songState').textContent = DEFAULT_SRC ? `Press "Load the song file" and pick ${CUR.recName} from your computer. It stays on your computer and is never uploaded.`
       : `No recording is saved for ${CUR.title}. Press Play and the body follows the sheet music on its own clock, or load the original recording.`;
+    $('songState').innerHTML = `<b style="color:#ffe066">\u{1F507} No music yet.</b> Tap <b>Load the song file</b> and pick ${CUR.recName || 'the recording of ' + CUR.title} (from the Files app on iPad). You only do this once per song on this device.`;
   }
   $('pLoad').textContent = 'Load the song file';
 }
