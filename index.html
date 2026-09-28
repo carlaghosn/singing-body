@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Singing Body">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#150f26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>[hidden]{display:none!important}body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>The Singing Body</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=DM+Mono:wght@500&display=swap">
+<style>
+[hidden]{display:none!important}
+:root{
+  --bg:#f5f1fb; --surface:#ffffff; --surface-2:#f1ebf8; --ink:#1c1330; --muted:#665b7c; --line:#e1d8ee;
+  --accent:#c02d8f;
+  --stage:#150f26; --stage-2:#1d1633; --stage-ink:#efe8fb; --stage-muted:#a89cc2; --stage-line:#2d2446;
+  --r-breathy:#8fd3ff; --r-chest:#ff5d73; --r-mix:#ffa62b; --r-head:#7c8cff; --r-belt:#ef3fb8; --r-whistle:#34e3c3;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"DM Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){color-scheme:dark;
+    --bg:#110c1c; --surface:#1a1328; --surface-2:#221a33; --ink:#f0eafa; --muted:#a99dc0; --line:#2f2545; --accent:#ff6cc4;}
+}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#110c1c; --surface:#1a1328; --surface-2:#221a33; --ink:#f0eafa; --muted:#a99dc0; --line:#2f2545; --accent:#ff6cc4;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:clamp(16px,3vw,28px);padding-block:22px 44px}
+header.top{display:flex;flex-wrap:wrap;gap:10px 30px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.eyebrow{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(36px,5.4vw,60px);line-height:.95;margin:4px 0 0;letter-spacing:-.02em}
+h1 span{background:linear-gradient(90deg,var(--r-chest),var(--r-mix),var(--r-belt),var(--r-head),var(--r-whistle));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{max-width:54ch;margin:0;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font:700 15px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 16px;border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-areas:"stage panel" "song panel" "keys panel" "board panel";gap:16px;align-items:start}
+.a-song{grid-area:song;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
+.a-stage{grid-area:stage}.a-keys{grid-area:keys}.a-board{grid-area:board}.a-panel{grid-area:panel;display:grid;gap:14px}
+.layout.song{grid-template-columns:minmax(0,1fr) 430px}
+.layout.song .a-panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 10px);max-height:calc(100vh - 20px);overflow:auto;border-radius:18px}
+.layout.song #body{max-height:calc(100vh - 290px)}
+.layout.song .insets svg{max-height:18vh}.layout.song .insets{gap:8px;padding:10px}.layout.song .tact{font-size:11px}
+.songlive{background:var(--stage);color:var(--stage-ink);border-radius:18px;overflow:hidden}
+.songlive .info{border-top:0;min-height:0}
+.songlive .crow{grid-template-columns:12px minmax(0,1fr) 64px;row-gap:1px}
+.songlive .crow .cgrp{display:none}
+.songlive .crow .ctxt{grid-column:2/-1;font-size:12.5px}
+.tact{font-size:11.5px;line-height:1.35;color:var(--stage-muted);margin:6px 0 0}
+.tact b{color:var(--stage-ink)}
+@media (max-width:980px){.layout,.layout.song{grid-template-columns:minmax(0,1fr);grid-template-areas:"stage" "panel" "song" "keys" "board"}.layout.song .a-panel{position:static;max-height:none}}
+
+/* stage */
+.stage{background:var(--stage);color:var(--stage-ink);border-radius:18px;overflow:hidden}
+.stage-bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--stage-line)}
+.sbtn{font:700 13.5px var(--body);border-radius:999px;border:1px solid #3a2f58;background:#221a3a;color:var(--stage-ink);padding:7px 13px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.sbtn:hover{border-color:#5d4d8a}
+.sbtn[aria-pressed="true"]{background:#f4ecff;color:#1a1030;border-color:#f4ecff}
+.bar-left,.bar-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--stage-muted)}
+.stage-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:0}
+@media (max-width:640px){.stage-grid{grid-template-columns:minmax(0,1fr)}}
+#body{display:block;width:100%;height:auto;max-height:78vh;background:radial-gradient(ellipse at 55% 35%,rgba(160,110,255,.12),transparent 65%)}
+.insets{display:grid;gap:10px;padding:12px;border-left:1px solid var(--stage-line);align-content:start}
+@media (max-width:640px){.insets{border-left:0;border-top:1px solid var(--stage-line);grid-template-columns:1fr 1fr}}
+.inset{background:var(--stage-2);border-radius:12px;padding:8px 10px 10px}
+.inset h4{margin:0 0 2px;font:700 13px var(--body);color:var(--stage-ink)}
+.inset .sub{font-size:11.5px;color:var(--stage-muted);margin:0 0 4px}
+.inset svg{display:block;width:100%;height:auto}
+.mbars{display:grid;gap:4px;margin-top:6px;font-size:11.5px;color:var(--stage-muted)}
+.mbar{display:grid;grid-template-columns:70px 1fr;gap:6px;align-items:center}
+.mbar i{display:block;height:7px;border-radius:4px;background:#2d2446;overflow:hidden}
+.mbar i b{display:block;height:100%;border-radius:4px;width:50%}
+.meter{background:var(--stage-2);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+@media (max-width:640px){.meter{grid-column:1/-1}}
+.meter .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;color:var(--stage-muted)}
+.meter .big{font:800 22px var(--display);color:var(--stage-ink);letter-spacing:-.01em}
+.lungbar{height:12px;border-radius:6px;background:#2d2446;overflow:hidden}
+.lungbar b{display:block;height:100%;width:60%;background:linear-gradient(90deg,#ff8fa3,#8fd3ff);border-radius:6px}
+.info{border-top:1px solid var(--stage-line);padding:14px 16px 16px;background:var(--stage-2);min-height:120px}
+.info h3{margin:0 0 4px;font:800 21px var(--display);letter-spacing:-.01em}
+.info p{margin:0 0 6px;color:#d9d0ec;max-width:75ch;font-size:14.5px}
+.info .why{color:var(--stage-muted);font-size:13.5px;border-left:3px solid #4a3c70;padding-left:10px;margin-top:8px}
+.warnbox{margin-top:8px;border-radius:9px;padding:8px 10px;background:#3b1426;color:#ffd1dd;font-size:13.5px}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h2{font:800 20px var(--display);margin:0 0 4px;letter-spacing:-.01em}
+.card .hint{margin:0 0 12px;color:var(--muted);font-size:13.5px}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{font:700 14px var(--body);border-radius:12px;border:2px solid var(--c);background:transparent;color:var(--ink);padding:9px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.chip small{font:500 11px var(--mono);color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--c);color:#150f26}
+.chip[aria-pressed="true"] small{color:#2b2140}
+.regdesc{margin-top:12px;padding:12px;border-radius:12px;background:var(--surface-2);font-size:14px}
+.regdesc b.nm{font:800 17px var(--display)}
+.vowels{display:flex;gap:6px;flex-wrap:wrap}
+.vbtn{font:700 15px var(--body);border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:10px;padding:8px 14px;cursor:pointer;min-width:52px}
+.vbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.row2{display:grid;gap:6px;margin-top:12px}
+.row2 label{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.row2 output{font-family:var(--mono);font-size:13px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.tries{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+.tries button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+
+/* keyboard */
+.kbwrap{overflow-x:auto;padding-bottom:4px}
+.zones{position:relative;height:70px;margin-bottom:4px}
+.zone{position:absolute;height:9px;border-radius:5px;font:500 10px var(--mono);color:var(--muted)}
+.zone span{position:absolute;left:4px;top:-13px;white-space:nowrap}
+.songband{position:absolute;height:6px;border-radius:3px;background:repeating-linear-gradient(90deg,var(--ink) 0 6px,transparent 6px 9px);opacity:.75}
+.kb{position:relative;height:118px}
+.wk{position:absolute;top:0;width:34px;height:118px;border:1px solid #cbbfdc;border-radius:0 0 7px 7px;background:#fff;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font:500 10px var(--mono);color:#7a6e90}
+.bk{position:absolute;top:0;width:22px;height:72px;background:#231a35;border-radius:0 0 5px 5px;cursor:pointer;z-index:2;border:1px solid #120c1e}
+.wk.on{background:var(--kc,#ffa62b);color:#1a1030}
+.bk.on{background:var(--kc,#ffa62b)}
+.wk.song::after{content:"";position:absolute;left:4px;right:4px;top:4px;height:4px;border-radius:2px;background:#c02d8f55}
+.wk .star,.bk .star{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:12px;color:#c02d8f}
+.kbnote{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--muted);margin-top:8px}
+.kbnote b{color:var(--ink)}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px}
+.knob label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700}
+.knob label span{display:flex;align-items:center;gap:7px}
+.knob output{font:500 12px var(--mono);color:var(--muted)}
+.knob small{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:1px}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+/* song */
+.facts{display:flex;flex-wrap:wrap;gap:6px}
+.fact{background:var(--surface-2);border-radius:8px;padding:5px 9px;font-size:13px}
+.fact b{font-family:var(--mono);font-weight:500}
+.sections{display:grid;gap:6px;margin-top:12px}
+.secbtn{display:grid;grid-template-columns:6px 1fr auto;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;padding:8px 10px;cursor:pointer;font:inherit}
+.secbtn i{align-self:stretch;border-radius:3px;background:var(--c)}
+.secbtn b{font-size:14.5px}
+.secbtn small{display:block;color:var(--muted);font-size:12.5px}
+.secbtn em{font:500 11.5px var(--mono);font-style:normal;color:var(--muted)}
+.secbtn[aria-pressed="true"]{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset}
+.secdetail{margin-top:12px;padding:14px;border-radius:12px;background:var(--surface-2)}
+.secdetail h3{margin:0 0 4px;font:800 19px var(--display)}
+.secdetail p{margin:0 0 8px;font-size:14px}
+.do{list-style:none;margin:8px 0;padding:0;display:grid;gap:5px;font-size:13.5px}
+.do li{display:grid;grid-template-columns:96px 1fr;gap:8px}
+.do li b{color:var(--muted);font-weight:700}
+.tip{font-size:13.5px;border-left:3px solid var(--accent);padding-left:10px;margin:8px 0 0}
+.go{font:700 14.5px var(--body);background:var(--accent);color:#fff;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;margin-top:10px}
+.heat{overflow-x:auto}
+.heat table{border-collapse:separate;border-spacing:3px;font-size:12px;min-width:360px;width:100%}
+.heat th{font-weight:700;color:var(--muted);text-align:left;white-space:nowrap;padding-right:4px}
+.heat thead th{text-align:center;font:500 10.5px var(--mono);cursor:pointer}
+.heat thead th.sel{color:var(--ink);text-decoration:underline}
+.heat td{height:22px;border-radius:5px;min-width:30px}
+.heat td.sel{outline:2px solid var(--ink);outline-offset:-1px}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.ghost{font:700 13.5px var(--body);background:var(--surface-2);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:7px 12px;cursor:pointer}
+#body .hit{cursor:pointer}
+#body .lbl text{font:700 12.5px var(--body);fill:#f3ecff;paint-order:stroke;stroke:#150f26;stroke-width:4px;stroke-linejoin:round}
+#body .lbl line{stroke:#b9a9e0;stroke-width:1;opacity:.7}
+#body .hit.sel{filter:drop-shadow(0 0 5px #fff)}
+
+/* play-along */
+.perf{padding:10px 14px 12px;border-bottom:1px solid var(--stage-line);display:grid;gap:10px;background:#1a1330}
+.unlock{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.unlock input{background:#150f26;color:#fff;border:1px solid #5b5270;border-radius:8px;padding:6px 8px}
+.songsel select{max-width:220px;font-weight:700}
+.perf-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pbtn{font:800 15px var(--body);background:#ef3fb8;color:#fff;border:0;border-radius:999px;padding:9px 18px;cursor:pointer}
+.pbtn:hover{background:#ff5cc8}
+.ptime{font:500 14px var(--mono);color:var(--stage-ink);font-variant-numeric:tabular-nums}
+.perf select{font:inherit;background:#221a3a;color:var(--stage-ink);border:1px solid #3a2f58;border-radius:6px;padding:3px 4px}
+.tl{position:relative;height:56px;border-radius:10px;background:#221a3a;cursor:pointer;overflow:hidden;touch-action:none}
+.tl .seg{position:absolute;top:0;bottom:16px;border-right:2px solid #150f26;display:flex;align-items:center;padding-left:6px;font:700 11.5px var(--body);color:#150f26;white-space:nowrap;overflow:hidden}
+.tl .seg.cur{box-shadow:inset 0 0 0 2px #fff}
+.tl .br{position:absolute;bottom:3px;width:2px;height:9px;background:#8fd3ff;border-radius:1px}
+.tl .br.big{height:13px;width:3px}
+.tl .ph{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#fff;box-shadow:0 0 8px #fff}
+.tl-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--stage-muted)}
+.syncbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:#d9d0ec;background:#2a1d45;border-radius:10px;padding:8px 10px}
+.coach .cue{font:800 clamp(20px,2.6vw,27px) var(--display);line-height:1.15;margin:6px 0;letter-spacing:-.01em}
+.coach .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--stage-muted)}
+.coach .pchip{border-radius:999px;padding:2px 10px;font-weight:700}
+.coach .next{font-size:14px;color:#d9d0ec}
+.coach .prep{font-size:14px;color:#ffe066;font-weight:700}
+.holdbar{height:12px;border-radius:6px;background:#2d2446;overflow:hidden;margin-top:6px}
+.holdbar b{display:block;height:100%;background:linear-gradient(90deg,#ef3fb8,#ffa62b);border-radius:6px}
+.inset svg.hit.sel{outline:3px solid #ffe066;border-radius:8px}
+#body .lbl.sel text{fill:#ffe066}
+/* belly-to-head chain */
+.chain{border-top:1px solid var(--stage-line);padding:12px 14px;background:#191230}
+.chain-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:baseline;margin-bottom:8px}
+.chain-head h4{margin:0;font:800 17px var(--display)}
+.chain-head span{font:500 11.5px var(--mono);color:var(--stage-muted)}
+.chain-rows{display:grid;gap:2px}
+.crow{display:grid;grid-template-columns:56px 12px 150px 90px 1fr;gap:8px;align-items:center;font-size:13px;padding:3px 6px;border-radius:7px;cursor:pointer}
+.crow:hover{background:#231a3d}
+.crow.sel{background:#2d2250;box-shadow:inset 0 0 0 1px #ffe066}
+.crow.gtop{margin-top:5px}
+.cgrp{font:500 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--stage-muted)}
+.cdot{width:10px;height:10px;border-radius:50%;display:block}
+.cbar{height:7px;background:#2d2446;border-radius:4px;overflow:hidden;display:block}
+.cbar b{display:block;height:100%;border-radius:4px;transition:width .15s}
+.ctxt{color:#d9d0ec}
+@media (max-width:700px){.crow{grid-template-columns:12px 1fr 70px}.crow .cgrp{display:none}.crow .ctxt{grid-column:1/-1;padding-left:20px;font-size:12.5px}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Interactive voice anatomy &#xB7; breath, folds, space</div>
+      <h1>The Singing <span>Body</span></h1>
+    </div>
+    <p class="lede">Your voice is a whole-body instrument: the breath is the power, the vocal folds make the buzz, and the throat and mouth shape it into sound. Pick a register and a note, then watch every part move together.</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-how" aria-selected="true">How singing works</button>
+    <button class="tab" role="tab" id="tab-song" aria-selected="false">Song play-along</button>
+  </div>
+
+  <div class="layout">
+    <section class="stage a-stage" aria-label="Animated singer">
+      <div class="stage-bar">
+        <div class="bar-left">
+          <button class="sbtn" id="soundBtn" aria-pressed="false">&#x1F508; Sound off</button>
+          <button class="sbtn" id="pauseBtn" aria-pressed="false">Pause</button>
+        </div>
+        <div class="bar-right">
+          <label class="chk"><input type="checkbox" id="lblChk" checked> Labels</label>
+          <label class="chk"><input type="checkbox" id="chainChk" checked> Belly-to-head path</label>
+          <span class="chk" id="modeTxt">Tap any body part</span>
+        </div>
+      </div>
+      <div class="perf" id="perf" hidden>
+        <div class="perf-row">
+          <label class="chk songsel">Song <select id="songSel"></select></label>
+          <button class="pbtn" id="pPlay">&#x25B6; Play song</button>
+          <button class="sbtn" id="pRestart">&#x27F2; Start over</button>
+          <span class="ptime" id="pTime">0:00 / 3:21</span>
+          <label class="chk">Speed <select id="pSpeed"><option value="0.5">0.5&#xD7;</option><option value="0.75">0.75&#xD7;</option><option value="1" selected>1&#xD7;</option></select></label>
+          <label class="chk"><input type="checkbox" id="pLoop"> Loop this section</label>
+          <button class="sbtn" id="pSync" hidden>Sync by tapping</button>
+          <button class="sbtn" id="pLoad">Load the song file</button>
+          <button class="sbtn" id="pReset" hidden>&#x21A9; Back to the song&#x2019;s recording</button>
+          <button class="sbtn" id="pEarly" title="Move every cue half a second earlier">Cues &#x25C0; &#xBD; s</button>
+          <button class="sbtn" id="pLate" title="Move every cue half a second later">Cues &#xBD; s &#x25B6;</button>
+          <input type="file" id="pFile" accept="audio/*,.m4a,.mp3" hidden>
+          <audio id="song" preload="auto"></audio>
+        </div>
+        <div class="tl" id="tl" role="slider" tabindex="0" aria-label="Position in the song"></div>
+        <div class="tl-legend"><span>Colors = register</span><span><b style="color:#8fd3ff">|</b> = breath</span><span id="songState"></span></div>
+        <div class="syncbar" id="syncBar" hidden>
+          <span id="syncMsg"></span>
+          <button class="sbtn" id="pMark">Mark</button>
+          <button class="sbtn" id="pSyncDone">Done</button>
+          <button class="sbtn" id="pSyncReset">Go back to estimates</button>
+        </div>
+      </div>
+      <div class="stage-grid">
+        <svg id="body" viewBox="0 0 520 900" aria-label="Side view of a singer's head, neck and chest">
+          <defs>
+            <radialGradient id="gGlow"><stop class="gs" offset="0" stop-color="#fff" stop-opacity=".75"/><stop class="gs" offset=".45" stop-color="#fff" stop-opacity=".25"/><stop class="gs" offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+            <linearGradient id="gLung" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb3c1"/><stop offset="1" stop-color="#ff6f8e"/></linearGradient>
+            <linearGradient id="gSkin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f7c9a8" stop-opacity=".10"/><stop offset="1" stop-color="#f7c9a8" stop-opacity=".22"/></linearGradient>
+            <pattern id="pMuscle" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(70)"><rect width="6" height="6" fill="#d62f6f"/><line x1="0" y1="0" x2="0" y2="6" stroke="#ff7aa8" stroke-width="1.6"/></pattern>
+          </defs>
+          <!-- body silhouette -->
+          <path id="torso" fill="url(#gSkin)" stroke="#f7c9a8" stroke-opacity=".5" stroke-width="1.5"/>
+          <path d="M185 296 L292 292 C305 330 315 400 322 470 L168 470 C172 420 178 360 185 296 Z" fill="url(#gSkin)" stroke="#f7c9a8" stroke-opacity=".5" stroke-width="1.5"/>
+          <path d="M178 330 C140 260 128 140 190 80 C240 30 340 35 368 95 C378 118 378 140 372 158 L404 208 C406 216 398 220 388 219 L386 230 C394 232 394 242 386 245 L350 245 L300 240 L262 250 L250 320 Z" fill="url(#gSkin)" stroke="#f7c9a8" stroke-opacity=".55" stroke-width="1.5"/>
+          <!-- spine -->
+          <g id="spine" opacity=".45" fill="#e9dcc6"></g>
+          <!-- head glow (head voice) -->
+          <ellipse id="glowHead" cx="265" cy="110" rx="95" ry="70" fill="url(#gGlow)" opacity="0"/>
+          <!-- lungs -->
+          <g class="hit" data-part="lungs"><path id="lungs" d="M200 520 C170 540 150 620 155 720 C200 745 300 750 360 720 C365 640 340 560 300 525 C270 505 225 505 200 520 Z" fill="url(#gLung)" opacity=".85"/></g>
+          <ellipse id="glowChest" cx="265" cy="610" rx="110" ry="95" fill="url(#gGlow)" opacity="0"/>
+          <!-- ribs -->
+          <g class="hit" data-part="ribs"><g id="ribs"></g></g>
+          <!-- diaphragm, abdomen -->
+          <ellipse id="organs" cx="275" cy="835" rx="85" ry="42" fill="#7b4a8f" opacity=".35"/>
+          <g class="hit" data-part="diaphragm"><path id="diaphragm" fill="none" stroke="url(#pMuscle)" stroke-width="13" stroke-linecap="round"/></g>
+          <g class="hit" data-part="abs"><path id="abs" fill="none" stroke="#c86bfa" stroke-width="9" stroke-linecap="round"/></g>
+          <!-- trachea -->
+          <g class="hit" data-part="trachea"><path id="trachea" fill="none" stroke="#7fe0d0" stroke-width="16" stroke-linecap="round" opacity=".55"/><path id="tracheaRings" fill="none" stroke="#dffaf5" stroke-width="16" stroke-dasharray="2 7" opacity=".5"/></g>
+          <!-- cavities -->
+          <g class="hit" data-part="nasal"><path d="M240 150 L350 150 C370 160 392 190 400 207 L262 207 C250 190 242 170 240 150 Z" fill="#3a1f4a"/></g>
+          <path d="M250 212 L366 216 L394 244 L394 300 L250 340 Z" fill="#2a0f24"/>
+          <g class="hit" data-part="pharynx"><path id="pharynx" fill="#2a0f24" stroke="#ff8fb0" stroke-opacity=".35"/></g>
+          <path d="M262 206 L362 210 L366 216 L262 214 Z" fill="#f1e4cf"/>
+          <g class="hit" data-part="palate"><g id="palate"><path d="M262 206 C245 208 232 216 222 230 C219 236 226 239 231 234 C241 224 252 218 262 215 Z" fill="#a78bfa"/><circle cx="224" cy="234" r="4.5" fill="#c9b6ff"/></g></g>
+          <!-- jaw -->
+          <g id="jaw">
+            <g class="hit" data-part="jaw"><path d="M386 246 C394 250 394 262 384 265 L382 269 C386 290 376 306 356 309 C330 313 300 306 282 292 L262 250 L300 246 Z" fill="#6a3b4f"/></g>
+            <rect x="364" y="247" width="14" height="9" rx="2" fill="#fbf6ee"/>
+            <g class="hit" data-part="tongue"><path id="tongue" fill="#ff6f91"/></g>
+            <g class="hit" data-part="lips"><ellipse id="lipL" cx="388" cy="255" rx="7" ry="9" fill="#ff8c9e"/></g>
+          </g>
+          <rect x="364" y="236" width="14" height="9" rx="2" fill="#fbf6ee"/>
+          <g class="hit" data-part="lips"><ellipse id="lipU" cx="390" cy="237" rx="7" ry="8" fill="#ff8c9e"/></g>
+          <!-- larynx -->
+          <g class="hit" data-part="larynx"><g id="larynx">
+            <path d="M268 360 L305 355 L313 380 L300 412 L270 412 Z" fill="#37c6b0" opacity=".9"/>
+            <path d="M258 368 C250 350 252 332 262 322 C266 330 264 350 266 368 Z" fill="#8ff0dd"/>
+            <path d="M272 390 L300 388" stroke="#fff0f5" stroke-width="4" stroke-linecap="round"/>
+            <path d="M273 380 L298 378" stroke="#ff9fb8" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+          </g></g>
+          <ellipse id="glowMask" cx="350" cy="200" rx="70" ry="48" fill="url(#gGlow)" opacity="0"/>
+          <g id="air"></g>
+          <g id="rings" fill="none" stroke-linecap="round"></g>
+          <!-- labels -->
+          <g id="labels"></g>
+        </svg>
+        <div class="insets">
+          <div class="inset">
+            <h4>Vocal folds, from above</h4>
+            <p class="sub" id="foldSub">Slow motion</p>
+            <svg id="glottis" viewBox="0 0 220 200" class="hit" data-part="folds" aria-label="Vocal folds seen from above"></svg>
+            <div class="mbars">
+              <div class="mbar"><span>TA muscle</span><i><b id="barTA" style="background:var(--r-chest)"></b></i></div>
+              <div class="mbar"><span>CT muscle</span><i><b id="barCT" style="background:var(--r-head)"></b></i></div>
+            </div>
+            <p class="tact"><b style="color:var(--r-chest)">TA</b> (thyroarytenoid) is the muscle inside the folds. It shortens and thickens them: chest voice, lower notes. <b style="color:var(--r-head)">CT</b> (cricothyroid) sits on the front of the voice box. It tilts the cartilage to stretch the folds longer and thinner: higher notes, head voice. Mix = both working together.</p>
+          </div>
+          <div class="inset">
+            <h4>Voice box, cut in half</h4>
+            <p class="sub">The pocket &amp; false folds</p>
+            <svg id="coronal" viewBox="0 0 220 200" class="hit" data-part="pocket" aria-label="Cross-section of the voice box"></svg>
+          </div>
+          <div class="meter">
+            <div class="row"><span id="phaseTxt">Breathing in</span><span class="big" id="noteTxt">E4</span></div>
+            <div class="lungbar" aria-hidden="true"><b id="lungFill"></b></div>
+            <div class="row"><span>Air in lungs</span><span id="hzTxt">330 vibrations / s</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="chain" id="chain">
+        <div class="chain-head"><h4>Belly to head, right now</h4><span>power &#x2192; buzz &#x2192; shape &#x2192; ring</span></div>
+        <div class="chain-rows" id="chainRows"></div>
+      </div>
+      <div class="info" id="info" aria-live="polite"></div>
+    </section>
+
+    <section class="card a-keys">
+      <h2>Pick a note</h2>
+      <p class="hint" id="kbHint">Colored bars show where each register usually lives. Every voice is different.</p>
+      <div class="kbwrap"><div id="kbInner" style="position:relative"><div class="zones" id="zones"></div><div class="kb" id="kb"></div></div></div>
+      <div class="kbnote"><span>Now: <b id="kbNow">E4</b> &#xB7; <span id="kbReg">Mix</span></span><span id="kbWarn"></span></div>
+    </section>
+
+    <section class="card a-board">
+      <h2>The coordination board</h2>
+      <p class="hint">Each register sets these automatically. Drag any one yourself to see and hear what that body part changes.</p>
+      <div class="board" id="board"></div>
+    </section>
+
+      <!-- SONG tab -->
+      <section class="a-song" id="panelSong" hidden>
+        <div class="card">
+          <form class="unlock" id="bodyUnlock" hidden><b>&#x1F512; Unlock the other songs</b><p class="note">Type the song password once (the same one as the Solf&#xE8;ge Studio).</p><input type="password" id="bodyPw" autocomplete="current-password" aria-label="Song password"> <button class="sbtn" type="submit">Unlock</button> <span class="note" id="bodyPwMsg"></span></form>
+          <h2 id="songH">We Belong Together</h2>
+          <p class="hint" id="songHint">Mariah Carey, 2005 &#xB7; original key</p>
+          <div class="facts" id="songFacts">
+            <span class="fact">Key <b>C major</b></span>
+            <span class="fact">Tempo <b>70 BPM</b></span>
+            <span class="fact">Time <b>4/4</b></span>
+            <span class="fact">Range <b>G3&#x2013;A5</b></span>
+            <span class="fact">Length <b>3:21</b></span>
+            <span class="fact">Final chorus <b>2:40, up an octave</b></span>
+            <span class="fact">Form <b>116 bars</b></span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="ghost" id="hearKey">Hear the key (C major chord)</button>
+          </div>
+          <div class="sections" id="sections"></div>
+          <div class="secdetail" id="secdetail"></div>
+        </div>
+        <div class="card">
+          <h2>How the body changes through the song</h2>
+          <p class="hint">Darker = more. Tap a column to jump to that section.</p>
+          <div class="heat" id="heat"></div>
+          <p class="note" id="songSrc">Song sections are named, not quoted. Follow along with your own lyric sheet. Facts from <a href="https://en.wikipedia.org/wiki/We_Belong_Together" target="_blank" rel="noopener">Wikipedia</a> and <a href="https://www.hooktheory.com/theorytab/view/mariah-carey/we-belong-together" target="_blank" rel="noopener">Hooktheory</a>. Section ranges are approximate.</p>
+          <p class="note"><b>Voice care:</b> belting should feel strong, never painful. If your throat feels scratchy, tight or sore, stop, sip water, and go back to a lighter mix. Build long holds a few seconds at a time.</p>
+        </div>
+      </section>
+
+    <aside class="a-panel">
+      <div class="songlive" id="songLive" hidden></div>
+      <!-- HOW tab -->
+      <div id="panelHow">
+        <div class="card">
+          <h2>Registers</h2>
+          <p class="hint">A register is a way the vocal folds and muscles set up to vibrate.</p>
+          <div class="chips" id="chips"></div>
+          <div class="regdesc" id="regdesc"></div>
+          <div class="row2">
+            <label>Vowel</label>
+            <div class="vowels" id="vowels"></div>
+          </div>
+          <div class="row2">
+            <label for="phr">Phrase length <output id="phrOut">5 s</output></label>
+            <input type="range" id="phr" min="2" max="18" step="1" value="5">
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h2>Try this</h2>
+          <ol class="tries">
+            <li><button data-try="nasal">Drop the soft palate</button> and listen: the sound goes through the nose.</li>
+            <li><button data-try="squeeze">Squeeze the pocket shut</button> to see what vocal strain looks like.</li>
+            <li><button data-try="chesthigh">Push chest voice up to C5</button>, then switch to mix on the same note.</li>
+            <li><button data-try="chesthead">Sing A4 in chest, then head</button> and watch the folds thin out.</li>
+            <li><button data-try="long">Hold a note for 17 seconds</button> and watch the ribs stay open.</li>
+          </ol>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const mk = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NAMES = ['C','C\u{266F}','D','E\u{266D}','E','F','F\u{266F}','G','A\u{266D}','A','B\u{266D}','B'];
+const nn = m => NAMES[m % 12] + (Math.floor(m / 12) - 1);
+const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+/* ---------- registers ---------- */
+const REG = {
+  breathy:{name:'Breathy', color:'#8fd3ff', lo:55, hi:79, thick:.35, cq:.2, pressure:.25, flow:.9, larynx:.45, palate:.75, twang:.05, retract:.75, gap:1, zone:'mask',
+    d:'The folds touch lightly and leave a small gap, so air escapes with the tone. Soft and intimate. R&B singers use it a lot in verses and ad-libs.', c:'Air runs out fast, so use it as color, not all the time.'},
+  chest:{name:'Chest', color:'#ff5d73', lo:55, hi:69, thick:.9, cq:.6, pressure:.55, flow:.4, larynx:.45, palate:.7, twang:.25, retract:.85, zone:'chest',
+    d:'The folds are thick (the TA muscle leads) and stay closed for a long part of each vibration. Rich, speech-like and strong on low notes. You feel the buzz in your chest.', c:'Carrying pure chest voice too high turns into shouting and strain.'},
+  mix:{name:'Mix', color:'#ffa62b', lo:62, hi:77, thick:.55, cq:.5, pressure:.55, flow:.4, larynx:.5, palate:.9, twang:.55, retract:.9, zone:'mask',
+    d:'A blend. The CT muscle stretches and thins the folds while the TA keeps some thickness. It lets a strong, speech-like sound climb higher without yelling. You feel it in your face.', c:'Most pop and R&B singing lives here.'},
+  head:{name:'Head', color:'#7c8cff', lo:67, hi:86, thick:.2, cq:.35, pressure:.4, flow:.5, larynx:.4, palate:1, twang:.2, retract:.9, zone:'head',
+    d:'The folds are long and thin (the CT leads) and close only briefly each time. A lighter, floating sound that you feel in your head.', c:'Good for soft high notes and for exercising the upper voice.'},
+  belt:{name:'Belt', color:'#ef3fb8', lo:60, hi:76, thick:.8, cq:.7, pressure:.9, flow:.35, larynx:.72, palate:.92, twang:.85, retract:1, zone:'mask',
+    d:'A strong, bright, chest-like sound on high notes. More breath pressure, folds closed a long time, larynx a little higher, jaw wide, lots of twang, and the false folds pulled back.', c:'This is the big sound of the octave-up final chorus. It should feel strong, never painful.'},
+  whistle:{name:'Whistle', color:'#34e3c3', lo:84, hi:93, thick:.08, cq:.5, pressure:.75, flow:.3, larynx:.6, palate:1, twang:.4, retract:.95, zone:'head', whistle:1,
+    d:'The highest register, famous from Mariah Carey. Only a small part of very tight, stretched folds vibrates, making a flute-like sound.', c:'It is not used in the album version of We Belong Together.'}
+};
+const VOWELS = {
+  ah:{jaw:.75, round:0,  f:[850,1220,2810], t:[250,330,236,300,236,270,270,262,310,256,345,262,362,262]},
+  eh:{jaw:.5,  round:0,  f:[610,2330,2990], t:[250,330,238,295,250,255,290,245,320,240,345,248,362,260]},
+  ee:{jaw:.25, round:0,  f:[310,2790,3310], t:[250,330,238,290,250,240,290,228,320,218,345,232,362,258]},
+  oh:{jaw:.5,  round:.7, f:[550,950,2700],  t:[250,330,234,292,242,250,275,248,310,248,340,256,362,262]},
+  oo:{jaw:.3,  round:1,  f:[370,950,2670],  t:[250,330,234,285,245,235,275,230,305,228,340,248,362,262]}
+};
+
+/* ---------- state ---------- */
+const S = { reg:'mix', midi:64, vowel:'ah', phrase:5, inhaleDur:2, paused:false, sound:false, tab:'how', sel:null, section:null };
+const K = ['pressure','flow','thick','cq','larynx','palate','jaw','twang','retract','round','gap','whistle'];
+const T = {}; const C = {};
+function applyReg(keepManual) {
+  const r = REG[S.reg], v = VOWELS[S.vowel];
+  const up = clamp((S.midi - 55) / 36, 0, 1);
+  T.pressure = clamp(r.pressure + (S.reg === 'belt' || S.reg === 'mix' ? up * .15 : up * .08), 0, 1);
+  T.flow = r.flow; T.thick = r.thick; T.cq = r.cq; T.twang = r.twang; T.retract = r.retract;
+  T.larynx = clamp(r.larynx + (up - .4) * .25, 0, 1);
+  T.palate = r.palate;
+  T.jaw = clamp(v.jaw * .7 + up * .35 + (S.reg === 'belt' ? .15 : 0), 0, 1);
+  T.round = v.round; T.gap = r.gap || 0; T.whistle = r.whistle || 0;
+  T.tongue = v.t.slice();
+}
+applyReg();
+K.forEach(k => C[k] = T[k]); C.tongue = T.tongue.slice();
+
+/* ---------- body drawing setup ---------- */
+const body = $('body');
+const spine = $('spine');
+for (let y = 300; y < 880; y += 22) mk('rect', {x:150 + (y - 300) * .02, y, width:22, height:18, rx:5}, spine);
+const ribsG = $('ribs');
+const ribEls = [];
+for (let i = 0; i < 7; i++) {
+  const y0 = 505 + i * 27, ye = y0 + 30 + i * 5, xe = 352 - i * 4;
+  ribEls.push(mk('path', {d:`M172 ${y0} C230 ${y0 - 18} 320 ${y0 - 4} ${xe} ${ye}`, fill:'none', stroke:'#f3e9d8', 'stroke-width':6, 'stroke-linecap':'round', opacity:.8}, ribsG));
+  if (i < 6) mk('path', {d:`M200 ${y0 + 6} C250 ${y0 - 4} 310 ${y0 + 8} ${xe - 6} ${ye + 10}`, fill:'none', stroke:'#ffb347', 'stroke-width':3, 'stroke-dasharray':'4 3', opacity:.6, class:'icm'}, ribsG);
+}
+mk('path', {d:'M350 505 L372 690', stroke:'#f3e9d8', 'stroke-width':7, 'stroke-linecap':'round', opacity:.8}, ribsG);
+
+/* labels */
+const LABELS = [
+  ['nasal','Nasal cavity',410,160,360,182], ['palate','Soft palate',28,205,226,228], ['pharynx','Throat (pharynx)',28,300,222,300],
+  ['tongue','Tongue',412,300,330,262], ['lips','Lips',430,243,395,247], ['jaw','Jaw',412,330,350,300],
+  ['larynx','Voice box',360,392,312,386], ['trachea','Windpipe',346,452,294,452], ['lungs','Lungs',20,585,172,600],
+  ['ribs','Ribs',400,560,362,560], ['diaphragm','Diaphragm',396,742,360,748], ['abs','Belly muscles',396,830,378,815]
+];
+const lblG = $('labels');
+LABELS.forEach(([part, txt, x, y, px, py]) => {
+  const g = mk('g', {class:'lbl hit', 'data-part':part}, lblG);
+  const tx = x < 200 ? x + txt.length * 6.6 : x;
+  mk('line', {x1: x < 200 ? tx + 4 : x - 4, y1:y - 4, x2:px, y2:py}, g);
+  const t = mk('text', {x, y}, g); t.textContent = txt;
+});
+$('lblChk').onchange = e => lblG.style.display = e.target.checked ? '' : 'none';
+
+/* air particles & sound rings */
+const airG = $('air'), AIRN = 34, airDots = [];
+for (let i = 0; i < AIRN; i++) airDots.push(mk('circle', {r:3, fill:'#8fd3ff'}, airG));
+const ringsG = $('rings'), rings = [];
+for (let i = 0; i < 12; i++) rings.push({el:mk('path', {'stroke-width':3}, ringsG), life:1, r:0, nasal:false});
+
+/* ---------- insets ---------- */
+const gl = $('glottis');
+mk('ellipse', {cx:110, cy:105, rx:100, ry:95, fill:'#4a1830'}, gl);
+const glGap = mk('path', {fill:'#0d0409'}, gl);
+const foldL = mk('path', {fill:'#fde7ef', stroke:'#ff9fb8', 'stroke-width':1.5}, gl);
+const foldR = mk('path', {fill:'#fde7ef', stroke:'#ff9fb8', 'stroke-width':1.5}, gl);
+const aryL = mk('ellipse', {rx:13, ry:15, fill:'#d99ab4'}, gl), aryR = mk('ellipse', {rx:13, ry:15, fill:'#d99ab4'}, gl);
+const glTxt1 = mk('text', {x:110, y:18, 'text-anchor':'middle', fill:'#e8d8f5', 'font-size':11, 'font-family':'DM Mono, monospace'}, gl); glTxt1.textContent = 'front';
+const glTxt2 = mk('text', {x:110, y:196, 'text-anchor':'middle', fill:'#e8d8f5', 'font-size':11, 'font-family':'DM Mono, monospace'}, gl); glTxt2.textContent = 'back';
+
+const co = $('coronal');
+mk('rect', {x:0, y:0, width:220, height:200, fill:'#0d0409', rx:8}, co);
+const coL = mk('path', {fill:'#b84a70'}, co), coR = mk('path', {fill:'#b84a70'}, co);
+const ffL = mk('path', {fill:'#e58fa9'}, co), ffR = mk('path', {fill:'#e58fa9'}, co);
+const tfL = mk('path', {fill:'#fff0f5'}, co), tfR = mk('path', {fill:'#fff0f5'}, co);
+const coDots = []; for (let i = 0; i < 10; i++) coDots.push(mk('circle', {r:2.4, fill:'#8fd3ff'}, co));
+const cLbl = (t, x, y, anchor) => { const e = mk('text', {x, y, fill:'#f3e6ff', 'font-size':10.5, 'font-family':'Atkinson Hyperlegible, sans-serif', 'text-anchor':anchor || 'start'}, co); e.textContent = t; return e; };
+cLbl('false fold', 150, 74); cLbl('pocket', 170, 112); cLbl('true fold', 158, 150); cLbl('from lungs \u{2191}', 110, 194, 'middle');
+const strainTxt = mk('text', {x:110, y:40, 'text-anchor':'middle', fill:'#ff4d6d', 'font-size':15, 'font-weight':700, 'font-family':'Atkinson Hyperlegible, sans-serif', opacity:0}, co); strainTxt.textContent = 'Squeezing!';
+
+/* ---------- info ---------- */
+const INFO = {
+  start:{t:'Tap any part of the singer', p:['Every note uses the whole chain: breath from the lungs, buzz from the vocal folds, and shape from the throat, soft palate, tongue, jaw and lips. The singer breathes in, then sings a phrase, over and over.','Turn the sound on to hear the note. Change the register, note or vowel and watch what moves.']},
+  lungs:{t:'Lungs', p:['Two spongy air bags. They have no muscles of their own. They fill and empty because the muscles around them change the size of your chest.'], why:'More air isn\u{2019}t the goal; steady air is. A long phrase needs the air let out slowly and evenly.'},
+  diaphragm:{t:'Diaphragm', p:['A dome-shaped sheet of muscle under the lungs. When it contracts, it flattens and moves down. That pulls air into the lungs and pushes the belly out: a breath in.'], why:'The diaphragm is a breathing-in muscle. While you sing it slowly relaxes and rises, and the ribs and belly muscles decide how fast. That control is what singers call support.'},
+  ribs:{t:'Ribs & intercostal muscles', p:['Small muscles between the ribs (orange dashes) swing the ribs up and out like bucket handles, making the chest wider when you breathe in.'], why:'Keeping the ribs gently open while you sing slows the air down. Italian teachers call this appoggio, which means leaning.'},
+  abs:{t:'Belly muscles', p:['The deep belly muscles squeeze inward to breathe out. For singing they firm up gently and steadily, adding pressure under the vocal folds.'], why:'Higher and louder notes, like belts, need more pressure, so these work harder. Firm, not clenched.'},
+  trachea:{t:'Windpipe (trachea)', p:['The tube that carries air from the lungs up to the voice box. Rings of cartilage hold it open.']},
+  larynx:{t:'Voice box (larynx)', p:['A box of cartilage at the top of the windpipe that holds the vocal folds. Its front is the bump you can feel in your throat. It moves up and down in the neck.'], why:'It tends to rise for brighter, higher sounds like belting and to settle lower for darker ones. Don\u{2019}t force it either way.'},
+  folds:{t:'Vocal folds (vocal cords)', p:['Two small bands of muscle covered in soft, flexible tissue. Air from below pushes them apart and they snap back together, hundreds of times a second. Each puff of air is one vibration: the note A4 means 440 vibrations every second.'], why:'Two muscles steer them. The TA makes the folds shorter and thicker (chest voice). The CT stretches them longer and thinner (higher notes and head voice). Mixing means balancing the two.'},
+  pocket:{t:'The pocket & false folds', p:['Just above the true vocal folds is a small pocket on each side, called the laryngeal ventricle. Above it sit the false vocal folds. They don\u{2019}t sing; they close when you grunt, lift something heavy, or strain.'], why:'Healthy belting keeps the false folds pulled back so the pocket stays open. If they squeeze in, the sound gets tight and scratchy and the voice tires fast.'},
+  pharynx:{t:'Throat (pharynx)', p:['The tube behind the tongue that runs from the voice box up to the nose. It is the biggest space the sound bounces through, and its shape colors the tone.'], why:'Narrowing the space just above the folds (twang) creates the bright, cutting ring of belting and R&B.'},
+  palate:{t:'Soft palate', p:['The soft back part of the roof of your mouth, with the uvula hanging from it. Raised, it seals off the nose so sound comes out of the mouth. Lowered, the sound goes through the nose, which you need for m, n and ng.'], why:'Lifting it, like the start of a yawn, makes space at the back of the mouth and helps high notes feel open.'},
+  tongue:{t:'Tongue', p:['The tongue shapes every vowel: high and forward for ee, low for ah, high and back for oo. Its tip makes consonants like t, d, n and l.'], why:'The tongue root connects to the voice box. A tight, pulled-back tongue squeezes the throat.'},
+  jaw:{t:'Jaw', p:['The jaw hinges just in front of the ear. It drops more as notes go higher, which gives the sound room.'], why:'In fast, wordy lines the jaw moves only a little and the tongue and lips do the work.'},
+  lips:{t:'Lips', p:['The last shaper of the sound: rounded for oo and oh, spread for ee.']},
+  nasal:{t:'Nasal cavity', p:['The air space behind your nose. It rings when the soft palate is lowered.']}
+};
+function showInfo(k) {
+  S.sel = k; const d = INFO[k] || INFO.start;
+  let h = `<h3>${d.t}</h3>` + d.p.map(x => `<p>${x}</p>`).join('');
+  if (d.why) h += `<p class="why">${d.why}</p>`;
+  if (C.retract < .4 || T.retract < .4) h += `<div class="warnbox">The false folds are squeezing in. That is strain. Raise "Pocket open" on the board to release it.</div>`;
+  $('info').innerHTML = h;
+  document.querySelectorAll('#body .hit').forEach(e => e.classList.toggle('sel', e.dataset.part === k));
+}
+document.querySelectorAll('.hit').forEach(e => e.addEventListener('click', ev => { ev.stopPropagation(); showInfo(e.dataset.part); }));
+
+/* ---------- controls: registers, vowels ---------- */
+const chips = $('chips');
+Object.entries(REG).forEach(([k, r]) => {
+  const b = document.createElement('button'); b.className = 'chip'; b.style.setProperty('--c', r.color); b.dataset.reg = k;
+  b.innerHTML = `${r.name}<small>${nn(r.lo)}\u{2013}${nn(r.hi)}</small>`;
+  b.onclick = () => setReg(k, true); chips.appendChild(b);
+});
+Object.keys(VOWELS).forEach(v => {
+  const b = document.createElement('button'); b.className = 'vbtn'; b.textContent = v; b.dataset.v = v;
+  b.onclick = () => { S.vowel = v; applyReg(); syncUI(); }; $('vowels').appendChild(b);
+});
+function setReg(k, moveNote) {
+  S.reg = k; const r = REG[k];
+  if (moveNote && (S.midi < r.lo || S.midi > r.hi)) S.midi = Math.round((r.lo + r.hi) / 2);
+  applyReg(); syncUI(); buildKeys();
+}
+$('phr').oninput = e => { S.phrase = +e.target.value; $('phrOut').textContent = S.phrase + ' s'; };
+
+/* ---------- board ---------- */
+const BOARD = [
+  ['pressure','Breath pressure','#ff8fa3','Ribs and belly muscles pressing air up'],
+  ['flow','Airflow','#8fd3ff','How much air leaks through each second'],
+  ['thick','Fold thickness','#ff5d73','TA muscle: thick = chest, thin = head'],
+  ['cq','Fold closure','#fff0f5','How long the folds stay shut each vibration'],
+  ['larynx','Larynx height','#37c6b0','Low = dark, high = bright'],
+  ['palate','Soft palate lift','#a78bfa','Low = nasal sound'],
+  ['jaw','Jaw opening','#ffb347','Opens more for higher notes'],
+  ['twang','Twang','#ffd84a','Narrowing above the folds = bright ring'],
+  ['retract','Pocket open','#e58fa9','False folds pulled back; low = strain']
+];
+const board = $('board');
+BOARD.forEach(([k, name, col, sub]) => {
+  const d = document.createElement('div'); d.className = 'knob';
+  d.innerHTML = `<label for="k-${k}"><span><i class="sw" style="background:${col}"></i>${name}</span><output id="o-${k}"></output></label><input type="range" id="k-${k}" min="0" max="100" value="50"><small>${sub}</small>`;
+  board.appendChild(d);
+  d.querySelector('input').addEventListener('input', e => { T[k] = e.target.value / 100; if (k === 'retract') showInfo(S.sel === 'pocket' ? 'pocket' : (T.retract < .4 ? 'pocket' : S.sel || 'start')); });
+});
+
+/* ---------- keyboard ---------- */
+const LO = 55, HI = 93, WK = 34;
+function isBlack(m) { return [1,3,6,8,10].includes(m % 12); }
+function buildKeys() {
+  const kb = $('kb'), zones = $('zones'); kb.innerHTML = ''; zones.innerHTML = '';
+  let wi = 0; const xOf = {};
+  for (let m = LO; m <= HI; m++) { if (!isBlack(m)) { xOf[m] = wi * WK; wi++; } }
+  for (let m = LO; m <= HI; m++) if (isBlack(m)) xOf[m] = xOf[m - 1] + WK - 11;
+  const W = wi * WK; $('kbInner').style.width = W + 'px'; kb.style.width = W + 'px';
+  const song = S.tab === 'song';
+  const sec = song && S.section != null ? SECTIONS[S.section] : null;
+  for (let m = LO; m <= HI; m++) {
+    const b = document.createElement('button'); b.className = isBlack(m) ? 'bk' : 'wk';
+    b.style.left = xOf[m] + 'px'; b.setAttribute('aria-label', nn(m));
+    if (!isBlack(m)) b.textContent = m % 12 === 0 ? nn(m) : '';
+    if (m === S.midi) { b.classList.add('on'); b.style.setProperty('--kc', REG[S.reg].color); }
+    if (song && m >= CUR.range[0] && m <= CUR.range[1] && !isBlack(m)) b.classList.add('song');
+    if (song && m === CUR.star) { const s = document.createElement('span'); s.className = 'star'; s.textContent = '\u{2605}'; b.appendChild(s); }
+    b.onclick = () => { S.midi = m; if (S.tab === 'how') applyReg(); else applyReg(); syncUI(); buildKeys(); if (!S.paused) restartCycle(false); };
+    kb.appendChild(b);
+  }
+  const cx = m => xOf[m] + (isBlack(m) ? 11 : WK / 2);
+  Object.values(REG).forEach((r, i) => {
+    const z = document.createElement('div'); z.className = 'zone';
+    z.style.left = cx(r.lo) + 'px'; z.style.width = (cx(r.hi) - cx(r.lo)) + 'px'; z.style.top = (13 + i * 9.5) + 'px';
+    z.style.background = r.color; z.style.opacity = S.reg === Object.keys(REG)[i] ? 1 : .45; z.style.height = '6px';
+    zones.appendChild(z);
+  });
+  const lab = document.createElement('div'); lab.className = 'zone'; lab.style.left = '0'; lab.style.top = '0'; lab.innerHTML = '<span style="left:0;top:-2px">register zones (typical)</span>'; zones.appendChild(lab);
+  if (song) {
+    const band = document.createElement('div'); band.className = 'songband';
+    band.style.left = cx(Math.max(LO, CUR.range[0])) + 'px'; band.style.width = (cx(Math.min(HI, CUR.range[1])) - cx(Math.max(LO, CUR.range[0]))) + 'px'; band.style.top = '64px'; zones.appendChild(band);
+    if (sec && !sec.rest) {
+      const sb = document.createElement('div'); sb.className = 'songband';
+      sb.style.background = REG[sec.reg].color; sb.style.opacity = 1; sb.style.left = cx(sec.lo) + 'px'; sb.style.width = Math.max(8, cx(sec.hi) - cx(sec.lo)) + 'px'; sb.style.top = '64px'; sb.style.height = '6px';
+      zones.appendChild(sb);
+    }
+    $('kbHint').textContent = `Dashed line = the song\u{2019}s range (${nn(CUR.range[0])}\u{2013}${nn(CUR.range[1])}).` + (CUR.star ? ' \u{2605} = the long C5 at the end.' : '') + ' Colored line = the section you picked.';
+  } else $('kbHint').textContent = 'Colored bars show where each register usually lives. Every voice is different.';
+  const cur = kb.children[S.midi - LO]; if (cur) { const wrap = document.querySelector('.kbwrap'); const x = parseFloat(cur.style.left); if (x < wrap.scrollLeft || x > wrap.scrollLeft + wrap.clientWidth - 40) wrap.scrollLeft = x - wrap.clientWidth / 2; }
+}
+
+function syncUI() {
+  document.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.reg === S.reg));
+  document.querySelectorAll('.vbtn').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === S.vowel));
+  const r = REG[S.reg];
+  $('regdesc').innerHTML = `<b class="nm" style="color:${r.color}">${r.name}</b><br>${r.d}<br><span style="color:var(--muted)">${r.c}</span>`;
+  $('kbNow').textContent = nn(S.midi) + ' \u{B7} ' + Math.round(hz(S.midi)) + ' Hz';
+  $('kbReg').textContent = r.name; $('kbReg').style.color = r.color;
+  let w = '';
+  if (S.midi > r.hi + 2 && (S.reg === 'chest')) w = 'That\u{2019}s high for chest voice. Try mix or belt with more support.';
+  else if (S.midi > r.hi + 2) w = 'Above this register\u{2019}s usual range.';
+  else if (S.midi < r.lo - 2) w = 'Below this register\u{2019}s usual range.';
+  $('kbWarn').textContent = w; $('kbWarn').style.color = w ? 'var(--accent)' : '';
+  BOARD.forEach(([k]) => { $('k-' + k).value = Math.round(T[k] * 100); });
+}
+
+/* ---------- audio ---------- */
+// Source-filter voice: a harmonic "buzz" (the vocal folds) shaped by formant resonances (the throat and mouth).
+let ac = null, A = {};
+function initAudio() {
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  A.osc = ac.createOscillator();
+  A.tiltKey = null;
+  A.lfo = ac.createOscillator(); A.lfo.frequency.value = 5.3;
+  A.lfoG = ac.createGain(); A.lfoG.gain.value = 0;
+  A.lfo.connect(A.lfoG); A.lfoG.connect(A.osc.detune);
+  A.src = ac.createGain(); A.src.gain.value = .09;
+  A.lp = ac.createBiquadFilter(); A.lp.type = 'lowpass'; A.lp.frequency.value = 5500; A.lp.Q.value = .5;
+  // breath noise (only for breathy singing)
+  const buf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate), ch = buf.getChannelData(0);
+  for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
+  A.noise = ac.createBufferSource(); A.noise.buffer = buf; A.noise.loop = true;
+  A.nhp = ac.createBiquadFilter(); A.nhp.type = 'highpass'; A.nhp.frequency.value = 1800;
+  A.noiseG = ac.createGain(); A.noiseG.gain.value = 0;
+  A.noise.connect(A.nhp); A.nhp.connect(A.noiseG);
+  // formants as resonant boosts in series
+  A.F = [[14,4],[11,5],[8,6]].map(([g,q]) => { const f = ac.createBiquadFilter(); f.type = 'peaking'; f.gain.value = g; f.Q.value = q; return f; });
+  A.twang = ac.createBiquadFilter(); A.twang.type = 'peaking'; A.twang.frequency.value = 3000; A.twang.Q.value = 2;
+  A.nasal = ac.createBiquadFilter(); A.nasal.type = 'peaking'; A.nasal.frequency.value = 270; A.nasal.Q.value = 2;
+  A.env = ac.createGain(); A.env.gain.value = 0;
+  // small room reverb
+  A.verb = ac.createConvolver();
+  const len = Math.floor(ac.sampleRate * 1.8), ir = ac.createBuffer(2, len, ac.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+  A.verb.buffer = ir;
+  A.wet = ac.createGain(); A.wet.gain.value = .22;
+  A.master = ac.createGain(); A.master.gain.value = .9;
+  A.comp = ac.createDynamicsCompressor(); A.comp.threshold.value = -18; A.comp.ratio.value = 4;
+  A.osc.connect(A.src); A.src.connect(A.lp); A.lp.connect(A.F[0]); A.noiseG.connect(A.F[0]);
+  A.F[0].connect(A.F[1]); A.F[1].connect(A.F[2]); A.F[2].connect(A.twang); A.twang.connect(A.nasal); A.nasal.connect(A.env);
+  A.env.connect(A.master); A.env.connect(A.verb); A.verb.connect(A.wet); A.wet.connect(A.master);
+  A.master.connect(A.comp); A.comp.connect(ac.destination);
+  A.was = false;
+  setWave();
+  A.osc.start(); A.lfo.start(); A.noise.start();
+}
+function setWave() {
+  // Thick folds that stay closed longer make stronger high harmonics (brighter); thin folds make a purer tone.
+  const whistle = C.whistle > .5;
+  const tilt = whistle ? 9 : Math.round((2.4 - 1.35 * (C.thick * .6 + C.cq * .4) - .25 * C.pressure) * 10) / 10;
+  if (tilt === A.tiltKey) return; A.tiltKey = tilt;
+  const N = 40, re = new Float32Array(N + 1), im = new Float32Array(N + 1);
+  for (let n = 1; n <= N; n++) im[n] = whistle ? (n === 1 ? 1 : n === 2 ? .04 : 0) : Math.pow(n, -tilt);
+  A.osc.setPeriodicWave(ac.createPeriodicWave(re, im));
+}
+function updateAudio(singing) {
+  if (!ac) return;
+  const t = ac.currentTime, f = hz(S.midi), v = VOWELS[S.vowel];
+  const on = singing && !S.paused && S.sound && !P.on;
+  setWave();
+  const whistle = C.whistle > .5;
+  const vol = (.35 + .65 * C.pressure) * (whistle ? .45 : 1);
+  if (on && !A.was) {
+    // start of a phrase: soft attack with a small scoop up to the note, vibrato arrives a moment later
+    A.osc.frequency.cancelScheduledValues(t); A.osc.frequency.setValueAtTime(f * .97, t); A.osc.frequency.exponentialRampToValueAtTime(f, t + .14);
+    A.env.gain.cancelScheduledValues(t); A.env.gain.setValueAtTime(A.env.gain.value, t); A.env.gain.linearRampToValueAtTime(vol, t + .12);
+    A.lfoG.gain.cancelScheduledValues(t); A.lfoG.gain.setValueAtTime(0, t); A.lfoG.gain.linearRampToValueAtTime(C.gap ? 10 : 22, t + .9);
+  } else if (on) {
+    A.osc.frequency.setTargetAtTime(f, t, .05);
+    A.env.gain.setTargetAtTime(vol, t, .1);
+  } else if (A.was || !on) {
+    A.env.gain.setTargetAtTime(0, t, .07);
+    A.lfoG.gain.setTargetAtTime(0, t, .1);
+  }
+  A.was = on;
+  const open = C.jaw, fm = whistle ? 1.25 : 1.12;           // a teen voice has slightly higher formants
+  A.F.forEach((fl, i) => fl.frequency.setTargetAtTime(v.f[i] * fm * (i === 0 ? (.85 + .3 * open) : 1), t, .06));
+  const nas = clamp(1 - C.palate, 0, 1);
+  A.F[0].gain.setTargetAtTime(14 - nas * 9, t, .08);
+  A.nasal.gain.setTargetAtTime(nas * 12, t, .08);
+  A.twang.gain.setTargetAtTime(C.twang * 9, t, .08);
+  A.lp.frequency.setTargetAtTime(whistle ? 9000 : 3200 + 3500 * (C.thick * .5 + C.pressure * .5), t, .08);
+  A.noiseG.gain.setTargetAtTime(.25 * C.gap + .15 * Math.max(0, C.flow - .6), t, .08);
+}
+$('soundBtn').onclick = () => {
+  if (!ac) initAudio();
+  S.sound = !S.sound; if (S.sound) ac.resume(); else updateAudio(false);
+  $('soundBtn').setAttribute('aria-pressed', S.sound); $('soundBtn').textContent = S.sound ? '\u{1F50A} Sound on' : '\u{1F508} Sound off';
+};
+$('pauseBtn').onclick = () => { if (P.on) { setPlaying(!P.playing); return; } S.paused = !S.paused; $('pauseBtn').setAttribute('aria-pressed', S.paused); $('pauseBtn').textContent = S.paused ? 'Play' : 'Pause'; };
+$('hearKey').onclick = () => {
+  if (!ac) initAudio(); ac.resume();
+  CUR.chord.forEach((m, i) => {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'triangle'; o.frequency.value = hz(m);
+    const t0 = ac.currentTime + i * .35; g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.18, t0 + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + 1.8);
+    o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + 1.9);
+  });
+};
+
+/* ---------- breath cycle ---------- */
+const cyc = { phase:'in', t:0, v:.35, vStart:.35, endV:.4 };
+function restartCycle(withInhale) {
+  if (withInhale) { cyc.phase = 'in'; cyc.t = 0; cyc.vStart = cyc.v; }
+  else { cyc.phase = 'sing'; cyc.t = 0; cyc.vSing = Math.max(cyc.v, .6); cyc.endV = Math.max(.12, cyc.vSing - S.phrase * (.02 + .07 * C.flow)); }
+}
+
+/* ---------- song ---------- */
+const SECTIONS = [
+  {n:'Intro', sub:'Soft ad-libs over piano', lo:64, hi:76, focus:69, reg:'breathy', vowel:'oo',
+   d:'Light, airy ad-libs over the piano set the mood. A little air in the tone is part of the style.',
+   body:{Breath:'Low pressure, gentle airflow.', Folds:'Thin, lightly touching, with a small gap.', 'Soft palate':'Lifted, relaxed.', Mouth:'Soft rounded lips, small jaw.'},
+   tip:'Keep it gentle. Breathy singing uses air fast, so breathe before you run out.'},
+  {n:'Verse 1', sub:'Wordy, rhythmic, low', lo:60, hi:69, focus:64, reg:'chest', vowel:'eh',
+   d:'Almost like talking in rhythm, with lots of words packed tightly against the beat. This is singing in the pocket: the groove R&B singers talk about.',
+   body:{Breath:'Quick sip breaths between lines.', Folds:'Chest voice, speech-like.', Tongue:'Fast and light for all the consonants.', Jaw:'Barely moves. Let the tongue and lips work.'},
+   tip:'Speak the rhythm of the lines on one note first, then add the melody.'},
+  {n:'Pre-chorus', sub:'Building toward the chorus', lo:60, hi:69, focus:65, reg:'chest', vowel:'ee', mixAbove:67, regLabel:'Chest \u{2192} Mix',
+   d:'The lines get longer and climb a little. Energy builds toward the chorus.',
+   body:{Breath:'Slightly bigger breaths for the longer lines.', Folds:'Chest, thinning into mix on the higher notes.', Belly:'Support starts to firm up.', Jaw:'Opening a little more.'},
+   tip:'Build gradually. Don\u{2019}t arrive at the chorus already at full power.'},
+  {n:'Chorus', sub:'Low and warm', lo:55, hi:67, focus:60, reg:'chest', vowel:'ah',
+   d:'The lowest notes in the song, down to G3, live here. Warm chest voice with smooth, connected lines.',
+   body:{Breath:'Steady and medium, with ribs staying wide.', Larynx:'Relaxed and fairly low. Don\u{2019}t press it down.', Folds:'Thick, chest buzz.', Resonance:'Feel the vibration in your chest.'},
+   tip:'On the lowest notes stay relaxed and speech-like. Pushing low notes makes them weaker, not stronger.'},
+  {n:'Verse 2', sub:'The radio verse', lo:60, hi:69, focus:64, reg:'chest', vowel:'eh',
+   d:'Same rhythmic style as verse 1, but more restless: she tries to distract herself with the radio and it doesn\u{2019}t work.',
+   body:{Breath:'Quick sip breaths.', Folds:'Chest voice.', Tongue:'Crisp and fast.', Twang:'A little brightness helps the words cut through.'},
+   tip:'Keep the jaw small and the rhythm tight. Tell the story.'},
+  {n:'Pre-chorus 2', sub:'Words tumbling out', lo:60, hi:69, focus:65, reg:'chest', vowel:'ee', mixAbove:67, regLabel:'Chest \u{2192} Mix',
+   d:'The most words per second in the song. The frustration builds.',
+   body:{Breath:'Tiny sip breaths. Plan where to breathe.', Tongue:'Very fast and light for all the consonants.', Folds:'Chest, flipping into mix on the peaks.', Belly:'Firm, steady support.'},
+   tip:'Mark your breath spots on your lyric sheet. Practice this part at 0.75\u{D7} first.'},
+  {n:'Chorus 2', sub:'Low, with more drive', lo:55, hi:67, focus:62, reg:'chest', vowel:'ah',
+   d:'The low chorus again, with more energy.',
+   body:{Breath:'Slightly stronger belly support.', Folds:'Chest voice.', Larynx:'Relaxed.', Mouth:'A little more open than the first chorus.'},
+   tip:'Save energy: the big section is next.'},
+  {n:'Final chorus', sub:'Up an octave: belt & mix', lo:67, hi:81, focus:76, reg:'belt', vowel:'eh', mixAbove:79, regLabel:'Belt \u{2192} Mix on top',
+   d:'The big change. The chorus comes back an octave higher, the emotional peak of the song. Now it\u{2019}s belt and mix: the whole body works harder but stays free.',
+   body:{Breath:'High pressure from ribs and belly, but controlled.', Folds:'Closed longer: bright belt. The top A5 leans toward mix.', Larynx:'A little higher, with twang.', 'Soft palate':'High, like the start of a yawn.', Pocket:'Open. False folds pulled back, no squeezing.', Jaw:'Wide open for the high notes.'},
+   tip:'Belt on open vowels (eh, ah). If a note feels like shouting, lighten it toward mix.'},
+  {n:'Outro', sub:'Soft ad-libs to the end', lo:60, hi:72, focus:64, reg:'mix', vowel:'oo',
+   d:'The energy comes back down. Soft ad-libs over the piano, ending on one last quiet line.',
+   body:{Breath:'Pressure comes way down.', Folds:'Lighter mix, some air in the tone.', Larynx:'Settles back down.', Ribs:'Stay gently open so the soft notes stay steady.'},
+   tip:'Coming down from a belt: release the pressure but keep the ribs open.'}
+];
+const HEAT = [
+  ['Breath pressure', '#ff8fa3', [.25,.4,.5,.45,.45,.55,.55,.88,.3]],
+  ['Ribs held open', '#f3b27a', [.5,.5,.6,.6,.5,.65,.65,.9,.55]],
+  ['Airflow', '#8fd3ff', [.85,.4,.4,.4,.4,.4,.4,.35,.6]],
+  ['Fold thickness', '#ff5d73', [.3,.85,.75,.9,.85,.7,.9,.75,.4]],
+  ['Larynx height', '#37c6b0', [.45,.45,.5,.4,.45,.52,.45,.7,.42]],
+  ['Soft palate lift', '#a78bfa', [.8,.7,.8,.7,.7,.8,.75,.95,.85]],
+  ['Jaw opening', '#ffb347', [.35,.3,.4,.45,.3,.4,.5,.8,.35]],
+  ['Twang', '#ffd84a', [.1,.3,.4,.25,.3,.5,.35,.85,.15]]
+];
+const HEAT_KEYS = ['pressure', null, 'flow', 'thick', 'larynx', 'palate', 'jaw', 'twang'];
+function buildSong() {
+  const box = $('sections'); box.innerHTML = '';
+  SECTIONS.forEach((s, i) => {
+    const b = document.createElement('button'); b.className = 'secbtn'; b.style.setProperty('--c', secCol(s));
+    b.setAttribute('aria-pressed', S.section === i);
+    b.innerHTML = `<i></i><span><b>${s.n}</b><small>${s.sub}</small></span><em>${s.rest ? 'no singing' : (s.lo === s.hi ? nn(s.lo) : nn(s.lo) + '\u{2013}' + nn(s.hi)) + '<br>' + (s.regLabel || REG[s.reg].name)}</em>`;
+    b.onclick = () => pickSection(i, true); box.appendChild(b);
+  });
+  const s = SECTIONS[S.section ?? 0];
+  const i = S.section ?? 0;
+  $('secdetail').innerHTML = `<h3>${s.n}</h3><p>${s.d}</p><ul class="do">${Object.entries(s.body).map(([k,v]) => `<li><b>${k}</b><span>${v}</span></li>`).join('')}</ul><p class="tip">${s.tip}</p><button class="go" id="showMe">\u{25B6} Play this section</button>`;
+  $('showMe').onclick = () => pickSection(i, true, true);
+  let h = '<table><thead><tr><th></th>' + SECTIONS.map((x, k) => `<th data-k="${k}" class="${k === S.section ? 'sel' : ''}" title="${x.n}">${ABBR[k]}</th>`).join('') + '</tr></thead><tbody>';
+  HEAT.forEach(([name, col, vals]) => {
+    h += `<tr><th>${name}</th>` + vals.map((v, k) => `<td data-k="${k}" class="${k === S.section ? 'sel' : ''}" style="background:${col};opacity:${(.12 + .88 * v).toFixed(2)}" title="${name}: ${Math.round(v * 100)}%"></td>`).join('') + '</tr>';
+  });
+  $('heat').innerHTML = h + '</tbody></table>';
+  $('heat').querySelectorAll('[data-k]').forEach(e => e.onclick = () => pickSection(+e.dataset.k, true));
+}
+function pickSection(i, apply, play) {
+  S.section = i;
+  if (P.on) { seek(P.starts[i]); if (play || apply) setPlaying(true); }
+  buildSong();
+}
+
+/* ---------- full-song play-along ---------- */
+const SHORT = ['Intro','Verse 1','Pre-chorus','Chorus','Verse 2','Pre-chorus 2','Chorus 2','Final chorus','Outro'];
+let FINAL = 7, LAST = SECTIONS.length - 1;
+const TIMING = [
+  {pLen:3.48, bLen:1.0, btype:'medium', contour:[0,3,7,2], vw:['oo','oh','ah']},
+  {pLen:3.48, bLen:.5, btype:'sip', contour:[0,2,1,-1], vw:['eh','ee','ah','oh']},
+  {pLen:3.48, bLen:.6, btype:'medium', contour:[0,2,4,2], vw:['ee','eh','ah']},
+  {pLen:3.48, bLen:.7, btype:'medium', contour:[-3,0,3,5,1], vw:['ah','oh','eh','oo']},
+  {pLen:3.48, bLen:.5, btype:'sip', contour:[0,2,1,-1], vw:['eh','ee','ah','oh']},
+  {pLen:3.48, bLen:.45, btype:'sip', contour:[0,2,4,2], vw:['ee','eh','ah']},
+  {pLen:3.48, bLen:.7, btype:'medium', contour:[-3,0,3,5,1], vw:['ah','oh','eh','oo']},
+  {pLen:3.48, bLen:.8, btype:'full', contour:[-5,-2,2,4,0], vw:['eh','ah','eh','oh']},
+  {pLen:3.48, bLen:1.2, btype:'medium', contour:[0,2,-1,-3], vw:['oo','oh']}
+];
+const COACH = [
+  {breathCue:'Easy breath in: belly softens and moves out', prep:'Verse coming: switch from airy to speech-like chest voice.',
+   cues:[{part:'folds', t:'Airy tone: the folds touch lightly and let a little air through'}, {part:'palate', t:'Soft palate lifts a little, like a small yawn'}, {part:'lips', t:'Soft, rounded lips for the ad-libs'}]},
+  {breathCue:'Quick sip breath between lines', prep:'Pre-chorus coming: longer lines, start to build.',
+   cues:[{part:'tongue', t:'Tongue tip makes crisp, quick consonants: stay in the pocket of the beat'}, {part:'jaw', t:'Small jaw moves: let the tongue and lips do the talking'}, {part:'folds', t:'Chest voice, like confident talking'}, {part:'larynx', t:'Voice box stays relaxed: no pushing'}]},
+  {breathCue:'A slightly bigger breath: ribs out', prep:'Chorus coming: take a low breath and relax the voice box.',
+   cues:[{part:'abs', t:'Belly support starts to firm up as the energy builds'}, {part:'folds', t:'Higher notes thin into mix. Don\u{2019}t shout'}, {part:'jaw', t:'Jaw opens a little more as the line climbs'}]},
+  {breathCue:'Low breath: belly and ribs move out', prep:'Verse 2 coming: back to quick, rhythmic lines.',
+   cues:[{part:'larynx', t:'Lowest notes of the song: keep the voice box relaxed, don\u{2019}t press it down'}, {part:'ribs', t:'Ribs stay wide while you sing, so the air comes out slowly'}, {part:'folds', t:'Thick folds, warm chest buzz: feel it in your chest'}, {part:'pharynx', t:'Open throat and a smooth, connected line'}]},
+  {breathCue:'Quick sip breath', prep:'Pre-chorus 2 coming: lots of words. Plan your breaths.',
+   cues:[{part:'tongue', t:'Crisp rhythm, words right on the beat'}, {part:'jaw', t:'Keep the jaw small in the fast lines'}, {part:'pharynx', t:'A touch of twang adds brightness'}, {part:'folds', t:'Chest voice, telling the story'}]},
+  {breathCue:'Tiny sip breath', prep:'Chorus 2 coming: low breath, relaxed voice box.',
+   cues:[{part:'tongue', t:'Very fast, light tongue for all the words'}, {part:'abs', t:'Belly support firm and steady'}, {part:'folds', t:'Peaks flip into mix instead of shouting'}]},
+  {breathCue:'Low breath: belly and ribs move out', prep:'The big moment is next: the chorus jumps up an octave. Full breath, open space!',
+   cues:[{part:'abs', t:'Belly muscles firm up a little more: more drive'}, {part:'ribs', t:'Ribs stay wide'}, {part:'folds', t:'Chest voice with more energy'}, {part:'jaw', t:'Mouth a little more open than the first chorus'}]},
+  {breathCue:'Full, low breath: ribs wide, belly out', prep:'Outro coming: bring the pressure down and lighten up.',
+   cues:[{part:'abs', t:'Belly muscles firm up: more breath pressure for the belt'}, {part:'pocket', t:'Keep the pocket open: false folds pulled back, no squeezing'}, {part:'palate', t:'Soft palate high, like the start of a yawn'}, {part:'jaw', t:'Jaw drops wide for the high notes'}, {part:'larynx', t:'The voice box rises a little. Let it, don\u{2019}t force it'}, {part:'folds', t:'Top notes (up to A5) lighten toward mix'}]},
+  {breathCue:'Easy breath: no need for a big one now', prep:'',
+   cues:[{part:'abs', t:'Release the belly pressure: soft singing again'}, {part:'ribs', t:'Ribs stay gently open so soft notes stay steady'}, {part:'folds', t:'Lighter folds, a little air in the tone'}, {part:'larynx', t:'The voice box settles back down'}]}
+];
+SECTIONS.forEach((sec, i) => Object.assign(sec, TIMING[i], COACH[i]));
+// Section starts from the sheet music: 116 bars in cut time at half note = 69 (1.739 s per bar), matching the 3:21 album recording.
+const BAR = 120 / 69;
+const DEFAULT_STARTS = [0, 12, 28, 36, 52, 68, 76, 92, 108].map(b => +(b * BAR).toFixed(2));
+let SONG_LEN = 201.4;
+const P = { on:false, playing:false, t:0, speed:1, loop:false, starts:DEFAULT_STARTS.slice(), ends:[], len:SONG_LEN, events:[], curSec:-1, syncing:false, tapIdx:1, cueKey:'', synced:false, lastSec:-1, audio:false };
+const snapC = m => { const sc = [0,2,4,5,7,9,11]; let best = m, bd = 99; for (let d = -2; d <= 2; d++) { const x = m + d; if (sc.includes(((x % 12) + 12) % 12) && Math.abs(d) < bd) { bd = Math.abs(d); best = x; } } return best; };
+const contourAt = (arr, u) => { if (arr.length === 1) return arr[0]; const x = u * (arr.length - 1), i = Math.floor(x), j = Math.min(i + 1, arr.length - 1); return lerp(arr[i], arr[j], x - i); };
+const fmtT = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+
+function buildTimeline() {
+  if (CUR.gen) return buildGen();
+  P.len = P.audioLen || SONG_LEN;
+  P.ends = P.starts.map((a, i) => i < LAST ? P.starts[i + 1] : P.len);
+  P.events = []; let v = .45;
+  SECTIONS.forEach((sec, i) => {
+    const a = P.starts[i], b = P.ends[i], flow = HEAT[2][2][i];
+    let t = a, n = 0;
+    while (t < b - .3) {
+      const end = Math.min(b, t + sec.pLen), bl = Math.min(sec.bLen, (end - t) * .4);
+      const full = sec.btype === 'sip' ? Math.min(1, v + .3) : sec.btype === 'full' ? 1 : Math.min(1, v + .55);
+      P.events.push({sec:i, type:'in', a:t, b:t + bl, v0:v, v1:full, n}); v = full;
+      const sl = end - t - bl, ve = Math.max(.15, v - sl * (.025 + .06 * flow) * (sec.btype === 'sip' ? 1.3 : 1));
+      P.events.push({sec:i, type:'sing', a:t + bl, b:end, v0:v, v1:ve, n}); v = ve;
+      t = end; n++;
+    }
+  });
+  renderTL();
+}
+function renderTL() {
+  const tl = $('tl'); tl.innerHTML = '';
+  SECTIONS.forEach((sec, i) => {
+    const d = document.createElement('div'); d.className = 'seg'; d.dataset.i = i;
+    d.style.left = (P.starts[i] / P.len * 100) + '%'; d.style.width = ((P.ends[i] - P.starts[i]) / P.len * 100) + '%';
+    d.style.background = sec.rest ? secCol(sec) : sec.mixAbove ? `linear-gradient(90deg, ${REG[sec.reg].color}, ${REG.mix.color})` : REG[sec.reg].color;
+    d.textContent = SHORT[i]; tl.appendChild(d);
+  });
+  P.events.filter(e => e.type === 'in').forEach(e => {
+    const d = document.createElement('div'); d.className = 'br' + (SECTIONS[e.sec].btype === 'full' ? ' big' : '');
+    d.style.left = (e.a / P.len * 100) + '%'; tl.appendChild(d);
+  });
+  const ph = document.createElement('div'); ph.className = 'ph'; ph.id = 'ph'; tl.appendChild(ph);
+}
+const song = $('song');
+function seek(t) { P.t = clamp(t, 0, P.len - .01); P.curSec = -1; P.cueKey = ''; if (P.audio) { try { song.currentTime = P.t; } catch (e) {} } }
+function playButtons() {
+  $('pPlay').textContent = P.playing ? '\u{275A}\u{275A} Pause' : '\u{25B6} Play song';
+  $('pauseBtn').textContent = P.playing ? 'Pause' : 'Play'; $('pauseBtn').setAttribute('aria-pressed', !P.playing);
+}
+function setPlaying(b) {
+  if (b && P.t >= P.len - .05) seek(0);
+  P.playing = b;
+  if (P.audio) { if (b) song.play().catch(() => { P.playing = false; playButtons(); }); else song.pause(); }
+  playButtons();
+}
+/* the real recording: loads automatically next to the double-click copy, or from a file the viewer picks */
+let DEFAULT_SRC = '';
+function songReady() {
+  P.audio = true; song.playbackRate = P.speed;
+  const d = song.duration;
+  P.audioLen = isFinite(d) ? d : SONG_LEN;
+  const want = CUR.rec ? CUR.rec.len : CUR.gen ? null : SONG_LEN;
+  const other = want ? Math.abs(P.audioLen - want) > 3 : !(P.audioLen / CUR.sheetLen > .8 && P.audioLen / CUR.sheetLen < 1.25);
+  $('songState').innerHTML = other
+    ? `<b style="color:#ffb3c7">This file doesn\u{2019}t match ${CUR.title} (it\u{2019}s ${fmtT(P.audioLen)} long).</b> The sections, breaths and body cues are mapped to ${CUR.title}, so they won\u{2019}t line up. Pick the song in the Song menu first.`
+    : `Playing ${CUR.title}.` + (CUR.gen ? ' Cues come from the sheet music. If they run early or late, use the Cues \u{BD} s buttons or Sync by tapping.' : '');
+  $('pReset').hidden = !(other && CUR.rec) && !(other && !CUR.gen);
+  P.audioLen = other ? SONG_LEN : P.audioLen;
+  if (CUR.gen && !other) fitStarts();
+  $('pLoad').textContent = 'Load a different file';
+  buildTimeline(); seek(P.t);
+}
+song.addEventListener('loadedmetadata', songReady);
+song.addEventListener('error', () => { if (!P.audio) $('songState').textContent = CUR.rec || !CUR.gen ? `Press "Load the song file" and pick ${CUR.recName} from the song\u{2019}s folder.` : `No recording is saved for ${CUR.title} yet. Press "Load the song file" and pick the original recording, or just press Play: the body follows the sheet music on its own clock.`; });
+song.addEventListener('pause', () => { if (P.playing && !song.ended) { P.playing = false; playButtons(); } });
+song.addEventListener('ended', () => { P.playing = false; playButtons(); });
+$('pLoad').onclick = () => $('pFile').click();
+$('pReset').onclick = () => {
+  setPlaying(false); P.audio = false;
+  if (location.protocol === 'file:' && DEFAULT_SRC) { song.src = encodeURI(DEFAULT_SRC); song.load(); }
+  else { $('songState').textContent = DEFAULT_SRC ? `Press "Load the song file" and pick ${CUR.recName}.` : `Press Play: the body follows the sheet music of ${CUR.title}.`; $('pReset').hidden = true; song.removeAttribute('src'); song.load(); P.audioLen = null; buildTimeline(); seek(0); }
+};
+$('pFile').onchange = e => { const f = e.target.files[0]; if (!f) return; P.audio = false; setPlaying(false); song.src = URL.createObjectURL(f); song.load(); };
+function loadDefaultAudio() {
+  P.audio = false; P.audioLen = null; setPlaying(false); $('pReset').hidden = true;
+  if (location.protocol === 'file:' && DEFAULT_SRC) { song.src = encodeURI(DEFAULT_SRC); song.load(); }
+  else {
+    song.removeAttribute('src'); song.load();
+    $('songState').textContent = DEFAULT_SRC ? `Press "Load the song file" and pick ${CUR.recName} from your computer. It stays on your computer and is never uploaded.`
+      : `No recording is saved for ${CUR.title}. Press Play and the body follows the sheet music on its own clock, or load the original recording.`;
+  }
+  $('pLoad').textContent = 'Load the song file';
+}
+function setTargetsFor(sec) {
+  applyReg();
+  HEAT.forEach(([, , vals], r) => { const k = HEAT_KEYS[r]; if (k) T[k] = lerp(T[k], vals[sec], .5); });
+}
+function markKey() {
+  const kb = $('kb'); kb.querySelectorAll('.on').forEach(e => { e.classList.remove('on'); });
+  const el = kb.children[S.midi - LO]; if (el) { el.classList.add('on'); el.style.setProperty('--kc', REG[S.reg].color); }
+  $('kbNow').textContent = nn(S.midi) + ' \u{B7} ' + Math.round(hz(S.midi)) + ' Hz'; $('kbReg').textContent = REG[S.reg].name; $('kbReg').style.color = REG[S.reg].color;
+}
+function drive(dt) {
+  if (P.audio) { P.t = song.currentTime; if (P.loop && P.playing && P.curSec >= 0 && P.t >= P.ends[P.curSec]) seek(P.starts[P.lastSec]); }
+  else if (P.playing) {
+    const nowMs = performance.now(), step = P.lastNow ? Math.min(.5, (nowMs - P.lastNow) / 1000) : dt; P.lastNow = nowMs;
+    P.t += step * P.speed;
+    if (P.loop && P.curSec >= 0 && P.t >= P.ends[P.curSec]) seek(P.starts[P.lastSec]);
+    if (P.t >= P.len) { P.t = P.len - .01; setPlaying(false); }
+  }
+  if (!P.playing || P.audio) P.lastNow = 0;
+  S.paused = !P.playing;
+  const t = P.t;
+  let e = P.events[P.events.length - 1];
+  for (const ev of P.events) if (t >= ev.a && t < ev.b) { e = ev; break; }
+  const sec = SECTIONS[e.sec], u = clamp((t - e.a) / (e.b - e.a), 0, 1);
+  if (P.curSec !== e.sec) {
+    const changed = P.lastSec !== e.sec;
+    P.curSec = e.sec; P.lastSec = e.sec; S.section = e.sec;
+    S.reg = sec.reg; S.midi = sec.focus; S.vowel = sec.vw[0]; setTargetsFor(e.sec);
+    if (changed) { buildSong(); buildKeys(); } markKey(); syncUI();
+    $('tl').querySelectorAll('.seg').forEach(d => d.classList.toggle('cur', +d.dataset.i === e.sec));
+    document.querySelectorAll('#heat [data-k]').forEach(d => d.classList.toggle('sel', +d.dataset.k === e.sec));
+  }
+  cyc.phase = e.type; cyc.t = t - e.a;
+  if (e.type === 'rest') { cyc.v = e.v0; S.phrase = 1; }
+  else if (CUR.gen && e.type === 'sing') {
+    S.phrase = e.b - e.a; cyc.v = lerp(e.v0, e.v1, u);
+    const rel = (t - P.starts[e.sec]) / P.k; let ni = -1;
+    for (let j = 0; j < sec.notes.length; j++) { const nt = sec.notes[j]; if (nt[0] <= rel + .02) ni = j; else break; }
+    if (ni >= 0) {
+      const m = sec.notes[ni][2], vw = sec.vw[Math.floor(ni / 2) % sec.vw.length];
+      const reg = sec.mixAbove && m >= sec.mixAbove ? 'mix' : sec.reg;
+      if (m !== S.midi || vw !== S.vowel || reg !== S.reg) { S.midi = m; S.vowel = vw; S.reg = reg; setTargetsFor(e.sec); markKey(); syncUI(); }
+    }
+  }
+  else if (e.type === 'in') { S.inhaleDur = e.b - e.a; cyc.v = lerp(e.v0, e.v1, 1 - Math.pow(1 - u, 2)); }
+  else {
+    S.phrase = e.b - e.a; cyc.v = lerp(e.v0, e.v1, u);
+    let m = sec.focus + contourAt(sec.contour, u) + (e.sec === FINAL && e.n % 4 === 3 && u > .45 && u < .7 ? 1 : 0);
+    m = clamp(snapC(Math.round(m)), sec.lo, sec.hi);
+    const vw = sec.vw[(e.n * 2 + (u > .5 ? 1 : 0)) % sec.vw.length];
+    const reg = sec.mixAbove && m >= sec.mixAbove ? 'mix' : sec.reg;
+    if (m !== S.midi || vw !== S.vowel || reg !== S.reg) { S.midi = m; S.vowel = vw; S.reg = reg; setTargetsFor(e.sec); markKey(); syncUI(); }
+  }
+  const ph = $('ph'); if (ph) ph.style.left = (t / P.len * 100) + '%';
+  $('pTime').textContent = fmtT(t) + ' / ' + fmtT(P.len);
+  coach(e, sec, u);
+}
+function spotlight(part) {
+  document.querySelectorAll('.hit').forEach(el => el.classList.toggle('sel', !!part && el.dataset.part === part));
+  document.querySelectorAll('.crow').forEach(el => el.classList.toggle('sel', !!part && el.dataset.part === part));
+  S.spot = part;
+}
+function coach(e, sec, u) {
+  const left = P.ends[e.sec] - P.t;
+  let part, text, extra = '', key;
+  if (!P.playing && P.t < .05) {
+    key = 'start';
+    if (P.cueKey === key) return; P.cueKey = key; spotlight(null);
+    $('info').innerHTML = `<div class="coach"><div class="meta"><span class="pchip" style="background:#ef3fb8;color:#fff">Play-along</span><span>${CUR.info}</span></div><div class="cue">Press \u{25B6} Play song. ${CUR.gen && !P.audio ? 'The body follows the sheet music' : 'The real recording plays while the body shows'} every breath and every change, from the first note to the last.</div><p class="next">The glowing path is the chain from belly to head, and the list below says what each part is doing. Tap any section on the colored bar to jump there.</p></div>`;
+    return;
+  }
+  if (e.type === 'rest') {
+    if (!sec.rest && e.b - e.a < 2.5 && P.cueKey) return;   // short gaps inside a section keep the last cue
+    part = 'diaphragm';
+    text = sec.spoken ? `${sec.n}: you don\u{2019}t sing here. Rest your voice, keep your jaw and shoulders loose, and breathe low and slow.`
+      : sec.rest ? 'No singing here. Relax your jaw and shoulders and breathe low and easy.' : 'Short break: easy, low breath and stay relaxed.';
+  }
+  else if (e.type === 'in') { part = sec.btype === 'sip' ? 'ribs' : 'diaphragm'; text = sec.breathCue; }
+  else { const c = sec.cues[e.n % sec.cues.length]; part = c.part; text = c.t; }
+  const nextTxt = e.sec < LAST ? `Next: ${SHORT[e.sec + 1]} in ${Math.ceil(left)} s` : 'Last section';
+  const prep = e.sec < LAST && left < 5 ? sec.prep : '';
+  key = [text, nextTxt, extra, prep, P.playing].join('|');
+  if (key === P.cueKey) return; P.cueKey = key;
+  spotlight(part);
+  const r = REG[S.reg];
+  const pname = (INFO[part] || {t:part}).t;
+  $('info').innerHTML = `<div class="coach"><div class="meta"><span class="pchip" style="background:${secCol(sec)};color:#150f26">${SHORT[e.sec]} \u{B7} ${sec.rest ? 'rest' : sec.regLabel || REG[sec.reg].name}</span><span class="pchip" style="background:#2d2446;color:#ffe066">Watch: ${pname}</span><span>${e.type === 'in' ? 'Breathing in' : e.type === 'rest' ? 'Resting' : 'Singing ' + nn(S.midi) + ' in ' + r.name.toLowerCase()}</span><span>${nextTxt}</span></div><div class="cue">${text}</div>${extra}${prep ? `<p class="prep">Get ready: ${prep}</p>` : ''}</div>`;
+}
+/* play-along controls */
+$('pPlay').onclick = () => setPlaying(!P.playing);
+$('pRestart').onclick = () => { seek(0); setPlaying(true); };
+$('pSpeed').onchange = e => { P.speed = +e.target.value; song.playbackRate = P.speed; };
+$('pLoop').onchange = e => P.loop = e.target.checked;
+(() => {
+  const tl = $('tl'); let down = false;
+  const at = ev => { const r = tl.getBoundingClientRect(); seek(clamp((ev.clientX - r.left) / r.width, 0, 1) * P.len); };
+  tl.addEventListener('pointerdown', ev => { down = true; tl.setPointerCapture(ev.pointerId); at(ev); });
+  tl.addEventListener('pointermove', ev => { if (down) at(ev); });
+  tl.addEventListener('pointerup', () => down = false);
+  tl.addEventListener('keydown', ev => { if (ev.key === 'ArrowRight') seek(P.t + 5); if (ev.key === 'ArrowLeft') seek(P.t - 5); });
+})();
+function syncMsg() {
+  const lastI = SECTIONS.length - 1;
+  $('syncMsg').textContent = P.tapIdx <= lastI
+    ? `Press \u{25B6} Play song. When ${SHORT[P.tapIdx]} begins, press Mark (or the M key).`
+    : 'All sections marked. Press Done to save.';
+  $('pMark').textContent = P.tapIdx <= lastI ? `Mark: ${SHORT[P.tapIdx]} starts now` : 'Mark';
+  $('pMark').disabled = P.tapIdx > lastI;
+}
+$('pSync').onclick = () => { P.syncing = true; P.tapIdx = 1; seek(0); setPlaying(false); $('syncBar').hidden = false; syncMsg(); };
+function mark() {
+  const nS = SECTIONS.length;
+  if (!P.syncing || P.tapIdx > nS - 1) return;
+  const i = P.tapIdx, delta = P.t - P.starts[i];
+  for (let j = i; j < nS; j++) P.starts[j] += delta;
+  for (let j = i + 1; j < nS; j++) P.starts[j] = Math.max(P.starts[j], P.starts[j - 1] + 3);
+  P.tapIdx++; P.synced = true; const tNow = P.t; buildTimeline(); P.t = tNow; P.curSec = -1; syncMsg();
+}
+$('pMark').onclick = mark;
+$('pSyncDone').onclick = () => { P.syncing = false; $('syncBar').hidden = true; saveStarts(); };
+$('pSyncReset').onclick = () => { P.synced = false; try { localStorage.removeItem(startsKey()); } catch (e) {} resetStarts(); buildTimeline(); seek(0); P.syncing = false; $('syncBar').hidden = true; };
+document.addEventListener('keydown', ev => {
+  if (!P.on || /INPUT|SELECT|TEXTAREA/.test(ev.target.tagName)) return;
+  if (ev.key === ' ') { ev.preventDefault(); setPlaying(!P.playing); }
+  if (ev.key === 'm' || ev.key === 'M') mark();
+});
+
+/* ---------- song library: We Belong Together (hand-mapped) + every mapped song ---------- */
+const BODY_SONGS = /*BODY_SONGS*/[];
+const ABBR = ['Intro','V1','Pre','Ch','V2','Pre','Ch2','Final','Out'];
+const secCol = s => s.rest ? '#5b5270' : REG[s.reg].color;
+const WBT = { id:'wbt', title:'We Belong Together', gen:false, secs:SECTIONS.slice(), heat:HEAT.map(h => h[2].slice()), short:SHORT.slice(), abbr:ABBR.slice(),
+  starts:DEFAULT_STARTS.slice(), len:SONG_LEN, src:DEFAULT_SRC, recName:'02 We Belong Together.m4a', rec:null, info:'3:21 \u{B7} C major \u{B7} half note = 69', range:[55, 81], star:72, chord:[60,64,67,72],
+  head:document.getElementById('songH').textContent, hint:document.getElementById('songHint').textContent, facts:document.getElementById('songFacts').innerHTML, srcNote:document.getElementById('songSrc').innerHTML, key:'C major' };
+let CUR = WBT;
+P.k = 1;
+const KEYPC = {C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11};
+function keyChord(key) {
+  const m = /^([A-G][#b]?)\s*(major|minor)?/i.exec(key || ''); if (!m) return [60,64,67,72];
+  const pc = KEYPC[m[1]] ?? 0, minor = /minor/i.test(key), r = 60 + (pc > 6 ? pc - 12 : pc);
+  return [r, r + (minor ? 3 : 4), r + 7, r + 12];
+}
+const TPL = {
+  breathy:{sub:'Light and airy', vw:['oo','oh','ah'], btype:'medium', breathCue:'Easy breath in: belly softens and moves out',
+    d:'Light and airy. A little air in the tone is part of the style here.', body:{Breath:'Low pressure, gentle airflow.', Folds:'Thin, lightly touching, with a small gap.', 'Soft palate':'Lifted, relaxed.', Mouth:'Soft lips, small jaw.'},
+    tip:'Breathy singing uses air fast, so breathe before you run out.',
+    cues:[{part:'folds', t:'Airy tone: the folds touch lightly and let a little air through'}, {part:'palate', t:'Soft palate lifts a little, like a small yawn'}, {part:'lips', t:'Soft lips, small jaw'}]},
+  chest:{sub:'Speech-like chest voice', vw:['eh','ee','ah','oh'], btype:'sip', breathCue:'Quick, low breath between lines',
+    d:'Speech-like singing in chest voice: warm, clear, close to talking.', body:{Breath:'Quick low breaths between lines.', Folds:'Thick folds, chest voice.', Tongue:'Crisp and light for the consonants.', Larynx:'Relaxed. Don\u{2019}t press it down.'},
+    tip:'Say the rhythm of the words on one note first, then add the melody.',
+    cues:[{part:'folds', t:'Chest voice, like confident talking'}, {part:'tongue', t:'Crisp, light consonants right on the beat'}, {part:'larynx', t:'Voice box stays relaxed: no pushing'}, {part:'ribs', t:'Ribs stay wide so the air comes out slowly'}]},
+  mix:{sub:'Mix voice', vw:['ee','eh','ah','oh'], btype:'medium', breathCue:'A low breath: ribs out, shoulders still',
+    d:'Mix voice: a strong, speech-like sound that climbs without yelling. Most pop and R&B singing lives here.', body:{Breath:'Steady, medium pressure.', Folds:'Medium thickness: TA and CT share the work.', Twang:'A little brightness helps it carry.', Jaw:'Opens a bit more as the line climbs.'},
+    tip:'If a note starts to feel like shouting, lighten it and add a little twang instead of more push.',
+    cues:[{part:'folds', t:'Mix: folds thinner than chest, still firm'}, {part:'pharynx', t:'A touch of twang keeps it bright and easy'}, {part:'abs', t:'Belly support steady, not squeezing'}, {part:'jaw', t:'Jaw opens a little more on the higher notes'}]},
+  belt:{sub:'Big and bright: belt', vw:['eh','ah','eh','oh'], btype:'full', breathCue:'Full, low breath: ribs wide, belly out',
+    d:'The big sound. More breath pressure, folds closed longer, larynx a little higher, lots of twang, jaw open. It should feel strong, never painful.', body:{Breath:'High pressure from ribs and belly, but controlled.', Folds:'Closed longer: bright belt. The very top leans toward mix.', 'Soft palate':'High, like the start of a yawn.', Pocket:'Open. False folds pulled back, no squeezing.', Jaw:'Wide open for the high notes.'},
+    tip:'Belt on open vowels (eh, ah). If a note feels like shouting, lighten it toward mix.',
+    cues:[{part:'abs', t:'Belly muscles firm up: more breath pressure for the belt'}, {part:'pocket', t:'Keep the pocket open: false folds pulled back, no squeezing'}, {part:'palate', t:'Soft palate high, like the start of a yawn'}, {part:'jaw', t:'Jaw drops wide for the high notes'}, {part:'larynx', t:'The voice box rises a little. Let it, don\u{2019}t force it'}]},
+  head:{sub:'Light and high', vw:['oo','ee','ah'], btype:'medium', breathCue:'Easy, deep breath: stay tall',
+    d:'High and light: the folds are long and thin and the sound floats. Think up and over the note, not pushing into it.', body:{Breath:'Gentle, steady flow.', Folds:'Thin and stretched: the CT muscle leads.', 'Soft palate':'Lifted high.', Larynx:'Stays relaxed, not climbing.'},
+    tip:'Keep it light. Pushing high notes makes them tight; letting them float makes them ring.',
+    cues:[{part:'folds', t:'Thin, stretched folds: a light, floating sound'}, {part:'palate', t:'Soft palate lifted high'}, {part:'larynx', t:'Voice box relaxed: no climbing'}]},
+  rest:{sub:'No singing', vw:['ah'], btype:'medium', breathCue:'Easy breath', d:'No singing in this part.', body:{Breath:'Low and easy.', Shoulders:'Loose.', Jaw:'Relaxed.'}, tip:'Use the break to relax and get ready for the next entry.', cues:[{part:'diaphragm', t:'Resting'}]}
+};
+const PREP = {breathy:'Next part is soft: bring the pressure down and lighten up.', chest:'Low breath, relaxed voice box: chest voice next.', mix:'Mix next: keep it speech-like and add a little twang.',
+  belt:'Big section next: full, low breath and open space!', head:'Light and high next: think up and over the note.', rest:'A break is coming: finish the line, then relax.'};
+const KIND = {intro:'Intro', verse:'Verse', pre:'Building', chorus:'Chorus', bridge:'Bridge', final:'The big finish', outro:'Ending', rap:'Rap (not sung)'};
+const HEATV = {breathy:[.25,.5,.85,.3,.45,.8,.35,.1], chest:[.45,.55,.4,.88,.43,.7,.4,.28], mix:[.55,.62,.4,.6,.5,.85,.45,.5],
+  belt:[.88,.9,.35,.75,.7,.95,.8,.85], head:[.4,.6,.5,.2,.4,1,.5,.2], rest:[.08,.35,.15,.05,.4,.5,.2,0]};
+const abbr = n => n.replace(/Pre-?chorus\s*/i, 'Pre').replace(/Final chorus/i, 'Fin').replace(/Chorus\s*/i, 'Ch').replace(/Verse\s*/i, 'V').replace(/Bridge\s*/i, 'Br')
+  .replace(/Interlude\s*/i, 'Int').replace(/Post-?chorus\s*/i, 'Post').replace(/Intro/i, 'Intro').replace(/Outro/i, 'Out').replace(/\s*\((.*)\)/, (m, x) => /repeat|2nd|3rd|ending|coda/i.test(x) ? '\u{2032}' : '').slice(0, 7);
+function genSections(b) {
+  return b.secs.map((x, i) => {
+    const rest = x.reg === 'rest', t = TPL[x.reg];
+    const nxt = b.secs[i + 1];
+    const label = rest ? '' : x.mixAbove ? `${REG[x.reg].name} \u{2192} Mix on top` : '';
+    return Object.assign({}, t, {n:x.n, sub:(rest ? (x.spoken ? 'Rap: you don\u{2019}t sing here' : 'Instrumental') : KIND[x.k] + ' \u{B7} ' + t.sub), lo:x.lo, hi:x.hi, focus:x.focus,
+      reg:rest ? 'mix' : x.reg, rest, spoken:x.spoken, mixAbove:x.mixAbove, regLabel:label, vowel:t.vw[0], a:x.a, lines:x.lines, notes:x.notes,
+      d:rest ? (x.spoken ? 'The rap part. You don\u{2019}t sing it: rest the voice, stay loose and get ready for the next entry.' : 'Instrumental: no singing here.') : t.d,
+      prep:nxt ? PREP[nxt.reg] : '', cues:t.cues, pLen:4, bLen:.6, contour:[0]});
+  });
+}
+function fmtKey(b) { return b.key || '' }
+function setSong(id) {
+  setPlaying(false); P.syncing = false; $('syncBar').hidden = true;
+  const b = BODY_SONGS.find(x => x.id === id);
+  if (!b) CUR = WBT;
+  else {
+    const rn = b.rec ? b.rec.src.split('/').pop() : '';
+    CUR = {id:b.id, title:b.title, gen:true, secs:genSections(b), heat:null, short:b.secs.map(x => x.n), abbr:b.secs.map(x => abbr(x.n)),
+      starts:b.secs.map(x => x.a), len:b.len, sheetLen:b.len, src:b.rec ? b.rec.src : '', recName:rn, rec:b.rec, key:b.key,
+      info:`${fmtT(b.len)} (sheet music) \u{B7} ${b.key || ''} \u{B7} ${b.tempo} BPM`, range:[Math.max(LO, b.range[0]), Math.min(HI, b.range[1])], star:null, chord:keyChord(b.key),
+      head:b.title, hint:(b.artist ? b.artist + ' \u{B7} ' : '') + 'from the sheet music',
+      facts:`<span class="fact">Key <b>${b.key || '?'}</b></span><span class="fact">Tempo <b>${b.tempo} BPM</b></span><span class="fact">Time <b>${b.time}</b></span><span class="fact">Range <b>${nn(b.range[0])}\u{2013}${nn(b.range[1])}</b></span><span class="fact">Length <b>${fmtT(b.len)}</b> (sheet)</span><span class="fact">Sections <b>${b.secs.length}</b></span>`,
+      srcNote:'Sections, breaths and notes come from the sheet music. Body settings per section are a guide based on how high and how big each part is. Sections are named, not quoted: follow along with your own lyric sheet.'};
+  }
+  SECTIONS.length = 0; CUR.secs.forEach(x => SECTIONS.push(x));
+  SHORT.length = 0; CUR.short.forEach(x => SHORT.push(x));
+  ABBR.length = 0; CUR.abbr.forEach(x => ABBR.push(x));
+  HEAT.forEach((h, r) => { h[2] = CUR.gen ? SECTIONS.map(x => { const v = HEATV[x.rest ? 'rest' : x.reg][r]; return x.rest ? v : Math.min(1, v + Math.max(0, x.hi - 72) * .015); }) : WBT.heat[r].slice(); });
+  LAST = SECTIONS.length - 1; FINAL = CUR.gen ? -1 : 7;
+  SONG_LEN = CUR.len; DEFAULT_SRC = CUR.src; P.k = 1;
+  resetStarts(); loadStarts();
+  $('songH').textContent = CUR.head; $('songHint').textContent = CUR.hint; $('songFacts').innerHTML = CUR.facts; $('songSrc').innerHTML = CUR.srcNote;
+  $('hearKey').textContent = `Hear the key (${CUR.key || 'C major'} chord)`;
+  $('pSync').hidden = !CUR.gen;
+  S.section = 0; P.curSec = -1; P.lastSec = -1; P.cueKey = ''; P.t = 0;
+  try { localStorage.setItem('body-song', CUR.id); } catch (e) {}
+  loadDefaultAudio(); buildTimeline(); seek(0); buildSong(); buildKeys(); syncUI();
+}
+function resetStarts() { DEFAULT_STARTS.length = 0; CUR.starts.forEach(x => DEFAULT_STARTS.push(x)); P.starts = CUR.starts.map(x => x * P.k); }
+function startsKey() { return CUR.gen ? 'body-starts-' + CUR.id : 'wbt-starts'; }
+function saveStarts() { try { localStorage.setItem(startsKey(), JSON.stringify({k:P.k, starts:P.starts})); } catch (e) {} }
+function loadStarts() {
+  try { const v = JSON.parse(localStorage.getItem(startsKey()) || 'null'); if (v && Array.isArray(v.starts) && v.starts.length === SECTIONS.length) { P.starts = v.starts; P.synced = true; P.saved = true; return; } } catch (e) {}
+  P.saved = false;
+}
+function fitStarts() {   // stretch the sheet-music clock to the recording (only for small differences), unless the timing was synced by hand
+  if (P.saved) { buildTimeline(); seek(P.t); return; }
+  const k = P.audioLen / CUR.sheetLen; P.k = k > .85 && k < 1.18 ? k : 1;
+  P.starts = CUR.starts.map(x => x * P.k); buildTimeline(); seek(P.t);
+}
+function buildGen() {
+  P.len = P.audioLen || SONG_LEN;
+  P.ends = P.starts.map((a, i) => i < LAST ? P.starts[i + 1] : P.len);
+  P.events = []; let v = .45, cur = 0;
+  const push = (sec, type, a, b, v0, v1, n) => { if (b - a > .02) P.events.push({sec, type, a, b, v0, v1, n}); };
+  SECTIONS.forEach((sec, i) => {
+    const A = P.starts[i], B = P.ends[i], flow = HEAT[2][2][i];
+    cur = Math.max(cur, A);
+    sec.lines.forEach((ln, n) => {
+      const la = A + ln[0] * P.k, lb = Math.min(B, A + ln[1] * P.k);
+      if (lb <= cur + .1) return;
+      const gap = la - cur;
+      if (gap > .15) {
+        const bl = clamp(gap * .6, .2, 1.1), full = gap > 1.5 ? 1 : Math.min(1, v + .35);
+        push(i, 'rest', cur, la - bl, v, v, n); push(i, 'in', la - bl, la, v, full, n); v = full;
+      }
+      const st = Math.max(la, cur), ve = Math.max(.12, v - (lb - st) * (.025 + .06 * flow));
+      push(i, 'sing', st, lb, v, ve, n); v = ve; cur = lb;
+    });
+    if (B > cur) { push(i, 'rest', cur, B, v, v, 99); cur = B; }
+  });
+  if (!P.events.length) P.events.push({sec:0, type:'rest', a:0, b:P.len, v0:.5, v1:.5, n:0});
+  renderTL();
+}
+(() => {
+  const sel = $('songSel');
+  const fillSel = () => { const v = sel.value; sel.innerHTML = `<option value="wbt">We Belong Together</option>` + BODY_SONGS.slice().sort((a, b) => a.title.localeCompare(b.title)).map(b => `<option value="${b.id}">${b.title}</option>`).join(''); if (v) sel.value = v; };
+  fillSel();
+  sel.onchange = e => setSong(e.target.value);
+  $('pEarly').onclick = () => { P.starts = P.starts.map(x => Math.max(0, x - .5)); P.saved = true; saveStarts(); buildTimeline(); seek(P.t); };
+  $('pLate').onclick = () => { P.starts = P.starts.map(x => x + .5); P.saved = true; saveStarts(); buildTimeline(); seek(P.t); };
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  async function unlockSongs(pwTry) {   // web version: the songs travel encrypted (same password as the Solf\u{E8}ge Studio)
+    let enc; try { const r = await fetch('songs.pack.json', {cache:'no-cache'}); if (!r.ok) return; enc = await r.json(); } catch (e) { return; }
+    let pw = pwTry || null; try { pw = pw || localStorage.getItem('solfege-pw'); } catch (e) {}
+    if (!pw) { $('bodyUnlock').hidden = false; return; }
+    try {
+      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+      const aes = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b64(enc.salt), iterations:enc.iter, hash:'SHA-256'}, key, {name:'AES-GCM', length:256}, false, ['decrypt']);
+      const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(enc.iv)}, aes, b64(enc.data));
+      const pack = JSON.parse(await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text());
+      BODY_SONGS.push(...(pack.songs || [])); try { localStorage.setItem('solfege-pw', pw); } catch (e) {}
+      $('bodyUnlock').hidden = true; fillSel();
+      let last = null; try { last = localStorage.getItem('body-song'); } catch (e) {}
+      if (last && BODY_SONGS.some(b => b.id === last)) { sel.value = last; setSong(last); }
+    } catch (e) { $('bodyUnlock').hidden = false; $('bodyPwMsg').textContent = pwTry ? 'That password didn\u{2019}t work.' : ''; }
+  }
+  $('bodyUnlock').addEventListener('submit', e => { e.preventDefault(); const pw = $('bodyPw').value.trim(); if (pw) unlockSongs(pw); });
+  if (!BODY_SONGS.length && location.protocol.startsWith('http')) unlockSongs();
+  let last = null; try { last = localStorage.getItem('body-song'); } catch (e) {}
+  if (last && BODY_SONGS.some(b => b.id === last)) { sel.value = last; setSong(last); } else { loadStarts(); loadDefaultAudio(); }
+})();
+
+/* ---------- belly-to-head chain ---------- */
+const CHAIN = [
+  {id:'abs', name:'Belly muscles', grp:'Power', col:'#c86bfa'},
+  {id:'diaphragm', name:'Diaphragm', grp:'Power', col:'#ff4f8b'},
+  {id:'ribs', name:'Ribs', grp:'Power', col:'#ffb347'},
+  {id:'lungs', name:'Lungs (the air)', grp:'Power', col:'#ff8fa3'},
+  {id:'folds', name:'Vocal folds', grp:'Buzz', col:'#fff0f5'},
+  {id:'pocket', name:'The pocket', grp:'Buzz', col:'#e58fa9'},
+  {id:'pharynx', name:'Throat & twang', grp:'Shape', col:'#ff8fb0'},
+  {id:'palate', name:'Soft palate', grp:'Shape', col:'#a78bfa'},
+  {id:'jaw', name:'Tongue, jaw & lips', grp:'Shape', col:'#ff6f91'},
+  {id:'res', name:'Resonance', grp:'Ring', col:'#ffe066'}
+];
+const chainG = mk('g', {id:'chainG', 'pointer-events':'none'});
+$('body').insertBefore(chainG, $('labels'));
+const chGlow = mk('path', {fill:'none', stroke:'#ffffff', 'stroke-opacity':.14, 'stroke-width':8, 'stroke-linejoin':'round', 'stroke-linecap':'round'}, chainG);
+const chDash = mk('path', {fill:'none', stroke:'#ffe066', 'stroke-width':2.2, 'stroke-dasharray':'6 9', 'stroke-linejoin':'round', opacity:.85}, chainG);
+const chNodes = CHAIN.map(c => mk('circle', {r:5, fill:c.col, stroke:'#150f26', 'stroke-width':1.5}, chainG));
+const chPulses = [0,1,2].map(() => mk('circle', {r:5, fill:'#fff'}, chainG));
+const spotRing = mk('circle', {r:14, fill:'none', stroke:'#ffe066', 'stroke-width':2.5, opacity:0}, chainG);
+const rowsEl = $('chainRows');
+CHAIN.slice().reverse().forEach((c, k, arr) => {
+  const r = document.createElement('div'); r.className = 'crow' + (k > 0 && arr[k - 1].grp !== c.grp ? ' gtop' : ''); r.dataset.part = c.id === 'res' ? '' : c.id;
+  r.innerHTML = `<span class="cgrp">${k === 0 || arr[k - 1].grp !== c.grp ? c.grp : ''}</span><i class="cdot" style="background:${c.col}"></i><b>${c.name}</b><span class="cbar"><b style="background:${c.col}"></b></span><span class="ctxt"></span>`;
+  if (c.id !== 'res') r.onclick = () => showInfo(c.id);
+  rowsEl.appendChild(r); c.row = r;
+});
+$('chainChk').onchange = e => { chainG.style.display = e.target.checked ? '' : 'none'; };
+let dashOff = 0, chainUiT = 0;
+function updateChain(dt, now, st) {
+  const {v, absEng, ribExp, ly, singing, inhaling, zone, rc} = st;
+  const resPos = zone === 'chest' ? [262, 560] : zone === 'head' ? [262, 108] : [352, 196];
+  const pos = {abs:[376, 815], diaphragm:[262, 738], ribs:[336, 588], lungs:[238, 640], folds:[287, 390 + ly], pocket:[287, 377 + ly],
+    pharynx:[224, 300], palate:[236, 226], jaw:[372, 262], res:resPos};
+  const act = {
+    abs: singing ? .15 + .85 * absEng : inhaling ? .1 : .05,
+    diaphragm: inhaling ? 1 : singing ? .3 : .1,
+    ribs: ribExp, lungs: v,
+    folds: singing ? .35 + .65 * C.pressure : inhaling ? .05 : 0,
+    pocket: C.retract, pharynx: .15 + .85 * C.twang, palate: C.palate, jaw: C.jaw,
+    res: singing ? .3 + .7 * C.pressure : 0
+  };
+  const pts = CHAIN.map(c => pos[c.id]);
+  const d = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L');
+  chGlow.setAttribute('d', d); chDash.setAttribute('d', d);
+  dashOff += dt * (singing && !S.paused ? -70 : inhaling && !S.paused ? 45 : 0);
+  chDash.setAttribute('stroke-dashoffset', dashOff.toFixed(1));
+  chDash.setAttribute('stroke', singing ? rc : '#8fd3ff');
+  CHAIN.forEach((c, i) => {
+    const a = clamp(act[c.id], 0, 1);
+    chNodes[i].setAttribute('cx', pts[i][0]); chNodes[i].setAttribute('cy', pts[i][1]);
+    chNodes[i].setAttribute('r', (4 + 7 * a).toFixed(1));
+    chNodes[i].setAttribute('fill', c.id === 'res' ? rc : (c.id === 'pocket' && C.retract < .4 ? '#ff4d6d' : c.col));
+    chNodes[i].setAttribute('opacity', (.45 + .55 * a).toFixed(2));
+  });
+  chPulses.forEach((p, k) => {
+    if (!singing || S.paused) { p.setAttribute('opacity', 0); return; }
+    const u = ((now / 1000) * (.3 + .4 * C.pressure) + k / 3) % 1, q = polyAt(pts, u);
+    p.setAttribute('cx', q[0].toFixed(1)); p.setAttribute('cy', q[1].toFixed(1)); p.setAttribute('fill', rc); p.setAttribute('opacity', .9);
+  });
+  const sp = S.spot && (S.spot === 'larynx' ? [287, 385 + ly] : S.spot === 'tongue' || S.spot === 'lips' ? pos.jaw : pos[S.spot]);
+  if (sp) { spotRing.setAttribute('cx', sp[0]); spotRing.setAttribute('cy', sp[1]); spotRing.setAttribute('r', (14 + 4 * Math.sin(now / 180)).toFixed(1)); spotRing.setAttribute('opacity', .95); }
+  else spotRing.setAttribute('opacity', 0);
+  chainUiT += dt; if (chainUiT < .15) return; chainUiT = 0;
+  const f = Math.round(hz(S.midi)), rn = REG[S.reg].name.toLowerCase();
+  const txt = {
+    abs: inhaling ? 'Relaxed, moving out to make room for air' : !singing ? 'Resting' : absEng < .3 ? 'Gently firm' : absEng < .6 ? 'Firming up to add pressure' : 'Working hard: strong, steady pressure',
+    diaphragm: inhaling ? 'Contracting: flattens down and pulls air in' : singing ? 'Relaxing slowly upward; ribs and belly control the speed' : 'Resting',
+    ribs: inhaling ? 'Swinging up and out' : singing ? (ribExp > .7 ? 'Held wide (appoggio), which slows the air' : 'Slowly closing') : 'Resting',
+    lungs: Math.round(v * 100) + '% full, ' + (inhaling ? 'filling' : singing ? 'emptying slowly' : 'resting'),
+    folds: inhaling ? 'Wide open so air can pass' : singing ? `${rn}: ${C.thick > .6 ? 'thick' : C.thick > .3 ? 'medium' : 'thin'}, closed ${Math.round(C.cq * 100)}% of each cycle, ${f}\u{D7} per second` : 'Resting open',
+    pocket: C.retract > .7 ? 'Open: false folds pulled back' : C.retract < .4 ? 'Squeezing shut: this is strain!' : 'Partly open',
+    pharynx: C.twang > .6 ? 'Narrowed just above the folds: bright twang' : C.twang > .3 ? 'A little twang' : 'Open and relaxed',
+    palate: C.palate > .8 ? 'Lifted high: sound goes out the mouth' : C.palate < .4 ? 'Lowered: sound goes through the nose' : 'Partly lifted',
+    jaw: `Vowel "${S.vowel}", jaw ${C.jaw > .6 ? 'wide open' : C.jaw > .35 ? 'medium' : 'small'}${C.round > .5 ? ', lips rounded' : ''}`,
+    res: !singing ? 'Quiet' : zone === 'chest' ? 'Buzz felt in the chest' : zone === 'head' ? 'Buzz felt in the head' : 'Buzz felt in the face (the "mask")'
+  };
+  CHAIN.forEach(c => {
+    c.row.querySelector('.cbar b').style.width = Math.round(clamp(act[c.id], 0, 1) * 100) + '%';
+    c.row.querySelector('.cbar b').style.background = c.id === 'res' ? rc : c.col;
+    c.row.querySelector('.ctxt').textContent = txt[c.id];
+  });
+}
+
+/* ---------- tabs ---------- */
+function setTab(t) {
+  S.tab = t;
+  $('tab-how').setAttribute('aria-selected', t === 'how'); $('tab-song').setAttribute('aria-selected', t === 'song');
+  $('panelHow').hidden = t !== 'how'; $('panelSong').hidden = t !== 'song';
+  P.on = t === 'song'; $('perf').hidden = !P.on;
+  document.querySelector('.layout').classList.toggle('song', P.on);
+  $('soundBtn').hidden = P.on;
+  const live = $('songLive'), stage = document.querySelector('.a-stage');
+  if (P.on) { live.append($('info'), $('chain')); live.hidden = false; }
+  else { stage.append($('chain'), $('info')); live.hidden = true; }
+  if (P.on) { buildTimeline(); seek(P.t); if (S.section == null) S.section = 0; buildSong(); }
+  else { setPlaying(false); S.paused = false; $('pauseBtn').textContent = 'Pause'; $('pauseBtn').setAttribute('aria-pressed', false);
+    S.phrase = +$('phr').value; S.inhaleDur = 2; S.reg = 'mix'; applyReg(); restartCycle(true); spotlight(null); showInfo('start'); }
+  buildKeys(); syncUI();
+}
+$('tab-how').onclick = () => setTab('how');
+$('tab-song').onclick = () => setTab('song');
+
+/* try-this */
+document.querySelectorAll('[data-try]').forEach(b => b.onclick = () => {
+  const k = b.dataset.try;
+  if (k === 'nasal') { T.palate = .05; showInfo('palate'); }
+  if (k === 'squeeze') { T.retract = .05; T.pressure = .95; showInfo('pocket'); }
+  if (k === 'chesthigh') { S.reg = 'chest'; S.midi = 72; applyReg(); T.pressure = .95; T.retract = .45; showInfo('folds'); setTimeout(() => { S.reg = 'mix'; applyReg(); syncUI(); buildKeys(); }, 6000); }
+  if (k === 'chesthead') { S.reg = 'chest'; S.midi = 69; applyReg(); showInfo('folds'); setTimeout(() => { S.reg = 'head'; applyReg(); syncUI(); buildKeys(); }, 5000); }
+  if (k === 'long') { S.phrase = 17; $('phr').value = 17; $('phrOut').textContent = '17 s'; S.reg = 'belt'; S.midi = 72; S.vowel = 'ah'; applyReg(); showInfo('ribs'); restartCycle(true); }
+  syncUI(); buildKeys();
+});
+
+/* ---------- frame ---------- */
+let last = performance.now(), fPh = 0, uiT = 0, ringT = 0;
+const tongueEl = $('tongue');
+function tonguePath(a) { return `M${a[0]} ${a[1]} C${a[2]} ${a[3]} ${a[4]} ${a[5]} ${a[6]} ${a[7]} C${a[8]} ${a[9]} ${a[10]} ${a[11]} ${a[12]} ${a[13]} L356 292 C320 302 280 320 ${a[0]} ${a[1]} Z`; }
+function polyAt(pts, u) {
+  let L = 0; const seg = [];
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i-1][0], pts[i][1] - pts[i-1][1]); seg.push(d); L += d; }
+  let s = u * L;
+  for (let i = 0; i < seg.length; i++) { if (s <= seg[i]) { const t = s / seg[i]; return [lerp(pts[i][0], pts[i+1][0], t), lerp(pts[i][1], pts[i+1][1], t)]; } s -= seg[i]; }
+  return pts[pts.length - 1];
+}
+const airPh = Array.from({length:AIRN}, (_, i) => i / AIRN);
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  // cycle
+  if (P.on) drive(dt);
+  else if (!S.paused) {
+    cyc.t += dt;
+    if (cyc.phase === 'in') {
+      const u = clamp(cyc.t / S.inhaleDur, 0, 1);
+      cyc.v = lerp(cyc.vStart, 1, 1 - Math.pow(1 - u, 2));
+      if (u >= 1) restartCycle(false);
+    } else {
+      const u = clamp(cyc.t / S.phrase, 0, 1);
+      cyc.v = lerp(cyc.vSing, cyc.endV, u);
+      if (u >= 1) { cyc.phase = 'in'; cyc.t = 0; cyc.vStart = cyc.v; }
+    }
+  }
+  const singing = cyc.phase === 'sing';
+  const inhaling = cyc.phase === 'in';
+  // ease params
+  const k = 1 - Math.exp(-dt * 5);
+  K.forEach(p => C[p] += (T[p] - C[p]) * k);
+  for (let i = 0; i < 14; i++) C.tongue[i] += (T.tongue[i] - C.tongue[i]) * k;
+  const v = cyc.v;
+  const absEng = singing ? C.pressure * (0.4 + 0.6 * clamp(cyc.t / S.phrase, 0, 1)) : 0;
+  const ribExp = inhaling ? v : Math.max(v, .45 + .45 * C.pressure);
+  // lungs
+  $('lungs').setAttribute('transform', `translate(255 510) scale(${(.93 + .1 * v).toFixed(3)} ${(.88 + .2 * v).toFixed(3)}) translate(-255 -510)`);
+  ribsG.setAttribute('transform', `translate(172 600) scale(${(1 + .07 * ribExp).toFixed(3)} 1) rotate(${(-2 * ribExp).toFixed(2)}) translate(-172 -600)`);
+  ribsG.querySelectorAll('.icm').forEach(e => e.setAttribute('opacity', (.25 + .7 * (inhaling ? 1 : ribExp * .8)).toFixed(2)));
+  const dc = 690 + 80 * v;
+  $('diaphragm').setAttribute('d', `M160 790 C190 ${dc} 330 ${dc} 368 765`);
+  $('diaphragm').setAttribute('opacity', inhaling ? 1 : .7);
+  const bellyX = 22 * v - 10 * absEng, ribX = 10 * ribExp;
+  $('torso').setAttribute('d', `M168 470 C130 478 100 510 96 570 L94 880 L${372 + bellyX * .3} 880 C${374 + bellyX} 830 ${380 + bellyX} 780 ${374 + bellyX * .9} 722 C${366 + bellyX * .5} 690 ${360 + ribX} 660 ${366 + ribX} 620 C${372 + ribX} 560 ${350 + ribX * .6} 500 322 470 Z`);
+  $('abs').setAttribute('d', `M${358 + ribX * .5} 700 C${366 + bellyX} 760 ${368 + bellyX} 820 ${358 + bellyX * .3} 872`);
+  $('abs').setAttribute('opacity', (.3 + .7 * absEng).toFixed(2));
+  $('organs').setAttribute('cy', 830 + 12 * v);
+  // larynx
+  const ly = (.5 - C.larynx) * 44;
+  $('larynx').setAttribute('transform', `translate(0 ${ly.toFixed(1)})`);
+  $('trachea').setAttribute('d', `M287 ${412 + ly} L287 540 L262 590`);
+  $('tracheaRings').setAttribute('d', `M287 ${414 + ly} L287 536`);
+  $('pharynx').setAttribute('d', `M208 200 C203 260 208 ${320 + ly} 228 ${362 + ly} L262 ${362 + ly} C${250 - C.twang * 6} ${330 + ly * .5} ${244 + (1 - C.tongue[2] / 250) * 30} 290 250 250 L250 205 Z`);
+  // palate, jaw, tongue, lips
+  $('palate').setAttribute('transform', `rotate(${lerp(-10, 24, C.palate).toFixed(1)} 262 210)`);
+  const jawDeg = C.jaw * 16;
+  $('jaw').setAttribute('transform', `rotate(${jawDeg.toFixed(2)} 262 236)`);
+  tongueEl.setAttribute('d', tonguePath(C.tongue));
+  $('lipU').setAttribute('transform', `translate(${(C.round * 7).toFixed(1)} 0) scale(1 ${(1 - C.round * .15).toFixed(2)})`);
+  $('lipL').setAttribute('transform', `translate(${(C.round * 7).toFixed(1)} 0)`);
+  // glows
+  const pulse = RM ? 1 : .8 + .2 * Math.sin(now / 90);
+  const zone = REG[S.reg].zone, gI = singing ? (.35 + .55 * C.pressure) * pulse : 0;
+  $('glowChest').setAttribute('opacity', (zone === 'chest' ? gI : zone === 'mask' && C.thick > .6 ? gI * .4 : 0).toFixed(2));
+  $('glowMask').setAttribute('opacity', (zone === 'mask' ? gI * .7 : 0).toFixed(2));
+  $('glowHead').setAttribute('opacity', (zone === 'head' ? gI : 0).toFixed(2));
+  const rc = REG[S.reg].color;
+  if (rc !== frame.rc) { frame.rc = rc; document.querySelectorAll('.gs').forEach(st => st.setAttribute('stop-color', rc)); }
+  // air route
+  const jr = jawDeg * Math.PI / 180;
+  const mouthY = 250 + Math.sin(jr) * 40;
+  const mouthRoute = [[258,650],[285,560],[287,420 + ly],[286,390 + ly],[268,362 + ly],[228,330],[224,262],[262,236],[330,236 + C.jaw * 8],[392,mouthY - 2],[470,mouthY + 4]];
+  const noseRoute = [[258,650],[285,560],[287,420 + ly],[286,390 + ly],[268,362 + ly],[228,330],[224,250],[236,196],[320,180],[400,205],[470,214]];
+  const nas = clamp(1 - C.palate, 0, 1);
+  const speed = inhaling ? -.5 : singing ? (.08 + .35 * C.flow) : 0;
+  airDots.forEach((d, i) => {
+    airPh[i] = (airPh[i] + dt * speed + 1) % 1;
+    const useNose = inhaling ? i % 2 === 0 : (i % 5 < Math.round(nas * 5));
+    const p = polyAt(useNose ? noseRoute : mouthRoute, airPh[i]);
+    d.setAttribute('cx', p[0].toFixed(1)); d.setAttribute('cy', p[1].toFixed(1));
+    const vis = inhaling || singing ? 1 : 0;
+    d.setAttribute('opacity', (vis * (singing ? .35 + .6 * C.flow : .7)).toFixed(2));
+    d.setAttribute('fill', singing && airPh[i] > .42 ? rc : '#8fd3ff');
+  });
+  // sound rings
+  ringT += dt;
+  const f = hz(S.midi);
+  if (singing && !S.paused && ringT > .75 - .45 * C.pressure) {
+    ringT = 0; const r = rings.find(x => x.life >= 1); if (r) { r.life = 0; r.nasal = Math.random() < nas; }
+  }
+  rings.forEach(r => {
+    if (r.life >= 1) { r.el.setAttribute('opacity', 0); return; }
+    r.life += dt / 1.6; const rad = 10 + r.life * 110;
+    const cx = r.nasal ? 400 : 394, cy = r.nasal ? 208 : mouthY;
+    const a = .7;
+    r.el.setAttribute('d', `M${cx + rad * Math.cos(-a)} ${cy + rad * Math.sin(-a)} A${rad} ${rad} 0 0 1 ${cx + rad * Math.cos(a)} ${cy + rad * Math.sin(a)}`);
+    r.el.setAttribute('stroke', r.nasal ? '#a78bfa' : rc);
+    r.el.setAttribute('stroke-width', (1.5 + 3 * C.pressure).toFixed(1));
+    r.el.setAttribute('opacity', ((1 - r.life) * (.4 + .6 * C.pressure)).toFixed(2));
+  });
+  // glottis
+  const fvis = RM ? 1 : clamp(f / 55, 1.2, 9);
+  fPh += dt * fvis;
+  const cq = clamp(C.cq, .1, .85), openFrac = 1 - cq;
+  const ph = fPh % 1;
+  let disp = 0;
+  if (singing && !S.paused) disp = ph < openFrac ? Math.sin(Math.PI * ph / openFrac) : 0;
+  const stretch = clamp((S.midi - 50) / 40 + (1 - C.thick) * .25, 0, 1);
+  const Ay = 30, Py = Ay + 112 + 34 * stretch;
+  const W = 16 + 28 * C.thick;
+  let g0 = inhaling ? 38 * Math.min(1, cyc.t * 3) + 4 : singing ? 7 * C.gap : 16;
+  if (!singing && !inhaling) g0 = 16;
+  const amp = (4 + 12 * C.pressure) * (C.whistle > .5 ? .45 : 1) * (.6 + .4 * C.thick);
+  const shape = t => C.whistle > .5 ? (t < .38 ? Math.sin(Math.PI * t / .38) : 0) : Math.sin(Math.PI * t);
+  const medial = side => { const pts = []; for (let i = 0; i <= 14; i++) { const t = i / 14; pts.push([110 + side * (g0 * t + amp * disp * shape(t) + .6), Ay + (Py - Ay) * t]); } return pts; };
+  const mL = medial(-1), mR = medial(1);
+  const fold = (m, side) => `M110 ${Ay} ` + m.map(p => `L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('') + ` L${110 + side * (g0 + W)} ${Py} L${110 + side * (W + 8)} ${Ay + 20} Z`;
+  foldL.setAttribute('d', fold(mL, -1)); foldR.setAttribute('d', fold(mR, 1));
+  const fcol = C.thick > .6 ? '#ffd7e2' : C.thick > .3 ? '#ffe9f0' : '#fff6fa';
+  foldL.setAttribute('fill', fcol); foldR.setAttribute('fill', fcol);
+  glGap.setAttribute('d', 'M110 ' + Ay + mL.map(p => `L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('') + mR.slice().reverse().map(p => `L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('') + 'Z');
+  aryL.setAttribute('cx', 110 - g0 - 10); aryL.setAttribute('cy', Py + 12);
+  aryR.setAttribute('cx', 110 + g0 + 10); aryR.setAttribute('cy', Py + 12);
+  // coronal
+  const ff = lerp(36, 6, C.retract);
+  const th = 8 + 24 * C.thick;
+  const gh = (inhaling ? 28 : singing ? 1 + 5 * C.gap : 10) + (singing ? disp * amp * .45 : 0);
+  const side = s => {
+    const X = x => s < 0 ? x : 220 - x;
+    const tip = 110 - gh;
+    return {
+      wall:`M${X(0)} 0 L${X(70)} 0 L${X(70)} 58 L${X(70)} 100 L${X(50)} 104 L${X(50)} 118 L${X(70)} 122 L${X(70)} 190 L${X(0)} 200 Z`,
+      ff:`M${X(70)} 58 C${X(70 + ff)} 66 ${X(70 + ff)} 88 ${X(70)} 100 Z`,
+      tf:`M${X(70)} 122 L${X(tip)} 128 L${X(tip)} ${128 + th} L${X(70 + (tip - 70) * .2)} ${150 + th} L${X(70)} ${156 + th} Z`
+    };
+  };
+  const L = side(-1), R = side(1);
+  coL.setAttribute('d', L.wall); coR.setAttribute('d', R.wall); ffL.setAttribute('d', L.ff); ffR.setAttribute('d', R.ff); tfL.setAttribute('d', L.tf); tfR.setAttribute('d', R.tf);
+  const strain = C.retract < .4;
+  ffL.setAttribute('fill', strain ? '#ff4d6d' : '#e58fa9'); ffR.setAttribute('fill', strain ? '#ff4d6d' : '#e58fa9');
+  strainTxt.setAttribute('opacity', strain ? 1 : 0);
+  coDots.forEach((d, i) => {
+    const u = ((now / 1000) * (inhaling ? -.6 : singing ? .5 + C.flow : 0) + i / 10 + 10) % 1;
+    const y = 190 - u * 190;
+    d.setAttribute('cx', 110 + Math.sin(i * 2.1) * 6); d.setAttribute('cy', y.toFixed(1));
+    d.setAttribute('opacity', inhaling || singing ? .8 : 0);
+  });
+  updateChain(dt, now, {v, absEng, ribExp, ly, singing, inhaling, zone, rc});
+  // readouts
+  uiT += dt;
+  if (uiT > .12) {
+    uiT = 0;
+    $('lungFill').style.width = Math.round(v * 100) + '%';
+    const left = singing ? Math.max(0, S.phrase - cyc.t) : 0;
+    $('phaseTxt').textContent = S.paused ? 'Paused' : inhaling ? 'Breathing in' : `Singing \u{B7} ${left.toFixed(1)} s left`;
+    $('noteTxt').textContent = nn(S.midi); $('noteTxt').style.color = rc;
+    $('hzTxt').textContent = `folds vibrate ${Math.round(f)}\u{D7} / s`;
+    $('foldSub').textContent = singing ? `Slowed about ${Math.round(f / fvis)}\u{D7} so you can see it` : inhaling ? 'Wide open to breathe in' : 'Resting';
+    $('barTA').style.width = Math.round(C.thick * 100) + '%';
+    $('barCT').style.width = Math.round(stretch * 100) + '%';
+    BOARD.forEach(([k2]) => { $('o-' + k2).textContent = Math.round(C[k2] * 100) + '%'; });
+    $('modeTxt').textContent = REG[S.reg].name + ' \u{B7} ' + S.vowel + ' \u{B7} ' + nn(S.midi);
+    if (ac) updateAudio(singing);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* init */
+syncUI(); buildKeys(); showInfo('start'); buildSong();
+if (location.hash === '#song') setTab('song');
+requestAnimationFrame(frame);
+})();
+</script>
+
+<script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
+</html>
