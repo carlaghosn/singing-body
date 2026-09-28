@@ -956,6 +956,21 @@ $('pReset').onclick = () => {
 };
 const audioDB = () => new Promise((ok, bad) => { const r = indexedDB.open('singing-body-audio', 1); r.onupgradeneeded = () => r.result.createObjectStore('rec'); r.onsuccess = () => ok(r.result); r.onerror = () => bad(r.error); });
 async function saveRec(id, blob) { try { const db = await audioDB(); await new Promise((ok, bad) => { const tx = db.transaction('rec', 'readwrite'); tx.objectStore('rec').put(blob, id); tx.oncomplete = ok; tx.onerror = () => bad(tx.error); }); return true; } catch (e) { return false; } }
+let audioKey = null, audioIdx = null;
+async function embeddedRec(id) {   // the web app carries each recording locked with the song password
+  try {
+    if (!audioIdx) { const r = await fetch('audio/index.json', {cache:'no-cache'}); if (!r.ok) return null; audioIdx = await r.json(); }
+    const meta = audioIdx.files[id]; if (!meta) return null;
+    let pw = null; try { pw = localStorage.getItem('solfege-pw'); } catch (e) {}
+    if (!pw) return 'locked';
+    const b64d = x => Uint8Array.from(atob(x), c => c.charCodeAt(0));
+    if (!audioKey) { const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+      audioKey = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b64d(audioIdx.salt), iterations:audioIdx.iter, hash:'SHA-256'}, k, {name:'AES-GCM', length:256}, false, ['decrypt']); }
+    const enc = await (await fetch('audio/' + encodeURIComponent(id) + '.bin')).arrayBuffer();
+    const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64d(meta.iv)}, audioKey, enc);
+    return new Blob([plain], {type:meta.mime});
+  } catch (e) { audioKey = null; return null; }
+}
 async function getRec(id) { try { const db = await audioDB(); return await new Promise(ok => { const q = db.transaction('rec').objectStore('rec').get(id); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch (e) { return null; } }
 $('pFile').onchange = async e => {
   const f = e.target.files[0]; if (!f) return; P.audio = false; setPlaying(false); song.src = URL.createObjectURL(f); song.load();
@@ -966,7 +981,17 @@ function loadDefaultAudio() {
   if (location.protocol === 'file:' && DEFAULT_SRC) { song.src = encodeURI(DEFAULT_SRC); song.load(); }
   else {
     song.removeAttribute('src'); song.load();
-    const id = CUR.id; getRec(id).then(b => { if (b && CUR.id === id && !P.audio) { song.src = URL.createObjectURL(b); song.load(); } });
+    const id = CUR.id;
+    getRec(id).then(async b => {
+      if (b) { if (CUR.id === id && !P.audio) { song.src = URL.createObjectURL(b); song.load(); } return; }
+      if (!location.protocol.startsWith('http')) return;
+      $('songState').textContent = `Loading the music for ${CUR.title}\u{2026}`;
+      const e = await embeddedRec(id);
+      if (CUR.id !== id || P.audio) return;
+      if (e === 'locked') { $('songState').innerHTML = '<b style="color:#ffe066">\u{1F512} Type the song password above to hear the music.</b>'; $('bodyUnlock').hidden = false; return; }
+      if (e) { song.src = URL.createObjectURL(e); song.load(); saveRec(id, e); return; }
+      $('songState').innerHTML = `<b style="color:#ffe066">\u{1F507} No recording for ${CUR.title} yet.</b> Press Play and the body follows the sheet music on its own clock, or tap Load the song file.`;
+    });
     $('songState').textContent = DEFAULT_SRC ? `Press "Load the song file" and pick ${CUR.recName} from your computer. It stays on your computer and is never uploaded.`
       : `No recording is saved for ${CUR.title}. Press Play and the body follows the sheet music on its own clock, or load the original recording.`;
     $('songState').innerHTML = `<b style="color:#ffe066">\u{1F507} No music yet.</b> Tap <b>Load the song file</b> and pick ${CUR.recName || 'the recording of ' + CUR.title} (from the Files app on iPad). You only do this once per song on this device.`;
@@ -1237,7 +1262,7 @@ function buildGen() {
       const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(enc.iv)}, aes, b64(enc.data));
       const pack = JSON.parse(await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text());
       BODY_SONGS.push(...(pack.songs || [])); try { localStorage.setItem('solfege-pw', pw); } catch (e) {}
-      $('bodyUnlock').hidden = true; fillSel();
+      $('bodyUnlock').hidden = true; fillSel(); audioKey = null; if (!P.audio) loadDefaultAudio();
       let last = null; try { last = localStorage.getItem('body-song'); } catch (e) {}
       if (last && BODY_SONGS.some(b => b.id === last)) { sel.value = last; setSong(last); }
     } catch (e) { $('bodyUnlock').hidden = false; $('bodyPwMsg').textContent = pwTry ? 'That password didn\u{2019}t work.' : ''; }
